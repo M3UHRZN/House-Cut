@@ -11912,6 +11912,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game::Game.Organs.OrganSaleRunner
   configProvider: {fileID: 1828241800}
   flowRunner: {fileID: 620165279}
+  economyRunner: {fileID: 0}
   organs:
   - {fileID: 11400000, guid: 5d64bc3bb01ef0049a4b3f7d614ffd03, type: 2}
   - {fileID: 11400000, guid: a6727b3c147ff4348b201b2dbd757140, type: 2}
