@@ -27,6 +27,9 @@ namespace Game.Core
         private readonly List<CardVisual> playerCards = new();
         private readonly List<CardVisual> dealerCards = new();
         private BlackjackLoop loop;
+        private string handResultMessage;
+        private Color handResultColor;
+        private bool isShowingHandResult;
 
         private void Awake()
         {
@@ -46,7 +49,7 @@ namespace Game.Core
             loop = new BlackjackLoop(flowRunner.Flow, economyRunner.Economy, new Deck(), configProvider.Config.decisionTime);
             loop.CardDealt += OnCardDealt;
             loop.DealerHoleCardRevealed += OnDealerHoleCardRevealed;
-            loop.HandSettled += _ => StartCoroutine(AdvanceAfterResult());
+            loop.HandSettled += OnHandSettled;
 
             yield return null;
             loop.Begin();
@@ -112,6 +115,33 @@ namespace Game.Core
 
         public void UseDeferment() => loop?.UseDeferment();
 
+        public static string FormatHandResult(int delta)
+        {
+            if (delta > 0)
+            {
+                return $"KAZANDIN  +${delta}";
+            }
+
+            if (delta < 0)
+            {
+                return $"KAYBETTİN  -${-delta}";
+            }
+
+            return "BERABERE";
+        }
+
+        private void OnHandSettled(int delta)
+        {
+            handResultMessage = FormatHandResult(delta);
+            handResultColor = delta > 0
+                ? new Color(0.35f, 1f, 0.45f)
+                : delta < 0
+                    ? new Color(1f, 0.3f, 0.25f)
+                    : new Color(1f, 0.85f, 0.3f);
+            isShowingHandResult = true;
+            StartCoroutine(AdvanceAfterResult());
+        }
+
         private void OnCardDealt(Card card, bool isDealer, bool faceUp)
         {
             List<CardVisual> views = isDealer ? dealerCards : playerCards;
@@ -164,8 +194,35 @@ namespace Game.Core
         private IEnumerator AdvanceAfterResult()
         {
             yield return new WaitForSeconds(resultDisplaySeconds);
+            isShowingHandResult = false;
             ClearCards();
             loop?.AdvanceToNextHand();
+        }
+
+        private void OnGUI()
+        {
+            if (!isShowingHandResult)
+            {
+                return;
+            }
+
+            float width = Mathf.Min(620f, Screen.width * 0.7f);
+            float height = Mathf.Max(90f, Screen.height * 0.14f);
+            var panel = new Rect((Screen.width - width) * 0.5f, Screen.height * 0.12f, width, height);
+
+            Color previousColor = GUI.color;
+            GUI.color = new Color(0.02f, 0.015f, 0.01f, 0.88f);
+            GUI.Box(panel, GUIContent.none);
+            GUI.color = previousColor;
+
+            var style = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = Mathf.Clamp(Mathf.RoundToInt(Screen.height * 0.055f), 28, 64),
+                fontStyle = FontStyle.Bold
+            };
+            style.normal.textColor = handResultColor;
+            GUI.Label(panel, handResultMessage, style);
         }
 
         private void ClearCards()
@@ -193,6 +250,7 @@ namespace Game.Core
 
             loop.CardDealt -= OnCardDealt;
             loop.DealerHoleCardRevealed -= OnDealerHoleCardRevealed;
+            loop.HandSettled -= OnHandSettled;
         }
 
         private void OnDrawGizmos()

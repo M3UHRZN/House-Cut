@@ -29,6 +29,7 @@ namespace Game.Economy
         }
 
         public int Balance => bank.Balance;
+        public Bank MoneyBank => bank;
         public int CurrentBaseBet => baseBet.Current;
         public int LockedBet => lockedBet;
         public bool HasDeferment => deferment.Has;

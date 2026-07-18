@@ -137,6 +137,12 @@ namespace Game.Core
                 case GameState.NextHand:
                     economy.AdvanceToNextHand();
                     break;
+                case GameState.Extraction:
+                    if (Transition(GameState.BetCheck) && economy.HasFundsForBaseBet)
+                    {
+                        Transition(GameState.Deal);
+                    }
+                    break;
             }
         }
 
