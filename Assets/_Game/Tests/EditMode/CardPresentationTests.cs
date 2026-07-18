@@ -84,6 +84,16 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
+        public void GizmoSize_ScalesLikeTheRuntimeCardModel()
+        {
+            Vector3 size = CardPlacement.GetGizmoSize(0.65f);
+
+            Assert.That(size.x, Is.EqualTo(0.728f).Within(0.001f));
+            Assert.That(size.y, Is.EqualTo(1.144f).Within(0.001f));
+            Assert.That(size.z, Is.EqualTo(0.02f).Within(0.001f));
+        }
+
+        [Test]
         public void CardVisual_FaceDownThenReveal_RestoresModelRotation()
         {
             var root = new GameObject("CardView");

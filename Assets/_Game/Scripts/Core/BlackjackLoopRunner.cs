@@ -20,6 +20,10 @@ namespace Game.Core
         [SerializeField, Min(0.01f)] private float cardScale = 0.65f;
         [SerializeField, Min(0f)] private float resultDisplaySeconds = 1.5f;
 
+        [Header("Card Layout Gizmos")]
+        [SerializeField] private bool showCardGizmos = true;
+        [SerializeField, Range(1, 10)] private int gizmoPreviewCardCount = 6;
+
         private readonly List<CardVisual> playerCards = new();
         private readonly List<CardVisual> dealerCards = new();
         private BlackjackLoop loop;
@@ -189,6 +193,51 @@ namespace Game.Core
 
             loop.CardDealt -= OnCardDealt;
             loop.DealerHoleCardRevealed -= OnDealerHoleCardRevealed;
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (!showCardGizmos)
+            {
+                return;
+            }
+
+            DrawHandGizmos(playerCardAnchor, new Color(0.15f, 1f, 0.35f, 0.9f), "PLAYER");
+            DrawHandGizmos(dealerCardAnchor, new Color(1f, 0.25f, 0.2f, 0.9f), "DEALER");
+        }
+
+        private void DrawHandGizmos(Transform anchor, Color color, string label)
+        {
+            if (anchor == null)
+            {
+                return;
+            }
+
+            Gizmos.color = color;
+            Gizmos.DrawSphere(anchor.position, 0.04f);
+
+            Vector3 cardSize = CardPlacement.GetGizmoSize(cardScale);
+            Vector3 previousPosition = anchor.position;
+
+            for (int i = 0; i < gizmoPreviewCardCount; i++)
+            {
+                Vector3 position = CardPlacement.GetPosition(anchor, i, cardSpacing);
+                Gizmos.matrix = Matrix4x4.TRS(position, anchor.rotation, Vector3.one);
+                Gizmos.DrawWireCube(Vector3.zero, cardSize);
+                Gizmos.matrix = Matrix4x4.identity;
+
+                if (i > 0)
+                {
+                    Gizmos.DrawLine(previousPosition, position);
+                }
+
+                previousPosition = position;
+            }
+
+#if UNITY_EDITOR
+            UnityEditor.Handles.color = color;
+            UnityEditor.Handles.Label(anchor.position + Vector3.up * 0.08f, $"{label}  •  {cardSpacing:0.00}m");
+#endif
         }
     }
 }
