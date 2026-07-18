@@ -69,6 +69,21 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(1000, economy.CurrentBaseBet);
         }
 
+        [Test]
+        public void RaiseBet_ThenConfirm_LocksRaisedBet()
+        {
+            var economy = new EconomyController(config);
+            var loop = new BlackjackLoop(new GameFlow(), economy, new Deck(seed: 42), config.decisionTime);
+
+            loop.Begin();
+            loop.RaiseBet();   // 700 -> 750
+            loop.RaiseBet();   // 750 -> 800
+            Assert.AreEqual(800, loop.CurrentBet);
+
+            Assert.IsTrue(loop.ConfirmBet());
+            Assert.AreEqual(800, economy.LockedBet);
+        }
+
         private static Hand HandOf(params (Suit suit, Rank rank)[] cardSpecs)
         {
             var hand = new Hand();

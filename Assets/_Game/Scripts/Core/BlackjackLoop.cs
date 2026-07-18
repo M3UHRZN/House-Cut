@@ -36,6 +36,24 @@ namespace Game.Core
             Transition(GameState.BetCheck);
         }
 
+        public int CurrentBet => activeSelector?.Current ?? 0;
+
+        public void RaiseBet()
+        {
+            if (State == GameState.BetCheck)
+            {
+                activeSelector?.Increase();
+            }
+        }
+
+        public void LowerBet()
+        {
+            if (State == GameState.BetCheck)
+            {
+                activeSelector?.Decrease();
+            }
+        }
+
         public bool ConfirmBet()
         {
             if (State != GameState.BetCheck)
