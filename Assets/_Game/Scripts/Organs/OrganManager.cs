@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Game.Data;
+using Game.Economy;
 using UnityEngine;
 
 namespace Game.Organs
@@ -12,12 +13,19 @@ namespace Game.Organs
 
         private readonly List<OrganData> organs;
         private readonly HashSet<OrganData> soldOrgans = new();
+        private readonly Bank bank;
 
         public IReadOnlyList<OrganData> Organs => organs;
         public IReadOnlyCollection<OrganData> SoldOrgans => soldOrgans;
 
         public OrganManager(IEnumerable<OrganData> organs)
+            : this(organs, null)
         {
+        }
+
+        public OrganManager(IEnumerable<OrganData> organs, Bank bank)
+        {
+            this.bank = bank;
             this.organs = organs
                 .Where(organ => organ != null)
                 .Distinct()
@@ -60,6 +68,7 @@ namespace Game.Organs
             }
 
             soldOrgans.Add(organ);
+            bank?.Deposit(saleValue);
             return saleValue;
         }
 

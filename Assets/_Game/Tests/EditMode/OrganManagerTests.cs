@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Game.Data;
+using Game.Economy;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -50,6 +52,45 @@ namespace Game.Tests.EditMode
             Assert.That((int)manager.Sell(liver), Is.EqualTo(3300));
             Assert.That((int)manager.Sell(liver), Is.EqualTo(0));
             Assert.That((bool)manager.IsSold(liver), Is.True);
+        }
+
+        [Test]
+        public void Sell_DepositsTheSaleValueIntoTheBank()
+        {
+            var config = ScriptableObject.CreateInstance<GameConfig>();
+            config.startMoney = 100;
+            var bank = new Bank(config);
+
+            try
+            {
+                Type managerType = AppDomain.CurrentDomain
+                    .GetAssemblies()
+                    .Select(assembly => assembly.GetType("Game.Organs.OrganManager"))
+                    .FirstOrDefault(type => type != null);
+
+                Assert.That(managerType, Is.Not.Null);
+
+                var constructor = managerType.GetConstructor(new[]
+                {
+                    typeof(IEnumerable<OrganData>),
+                    typeof(Bank)
+                });
+
+                Assert.That(constructor, Is.Not.Null);
+
+                dynamic manager = constructor.Invoke(new object[]
+                {
+                    new[] { ear },
+                    bank
+                });
+
+                Assert.That((int)manager.Sell(ear), Is.EqualTo(1000));
+                Assert.That(bank.Balance, Is.EqualTo(1100));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(config);
+            }
         }
 
         private static OrganData CreateOrgan(
