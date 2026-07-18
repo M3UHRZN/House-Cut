@@ -9,9 +9,10 @@ namespace Game.Organs
 {
     public class OrganManager
     {
-        private const int SpleenSalePenalty = 300;
-        private const float KidneyISaleBonus = 0.2f;
         private const string HeartId = "heart";
+        private const string SpleenId = "spleen";
+        private const string KidneyIId = "kidney_i";
+        private const int CriticalOrganThreshold = 2;
 
         private readonly List<OrganData> organs;
         private readonly HashSet<OrganData> soldOrgans = new();
@@ -48,6 +49,11 @@ namespace Game.Organs
             return organ != null && soldOrgans.Contains(organ);
         }
 
+        /// <summary>
+        /// Sale value with Kidney I / Spleen's persistent modifiers, read from
+        /// those organs' own buffStrength/debuffStrength (data-driven, not
+        /// hardcoded) so Inspector tuning takes effect without a code change.
+        /// </summary>
         public int GetSaleValue(OrganData organ)
         {
             if (organ == null || IsSold(organ))
@@ -55,19 +61,21 @@ namespace Game.Organs
                 return 0;
             }
 
-            var saleValue = organ.dollarValue;
+            float saleValue = organ.dollarValue;
 
-            if (HasSoldOrgan("kidney_i"))
+            var kidneyI = FindSoldOrgan(KidneyIId);
+            if (kidneyI != null)
             {
-                saleValue = Mathf.RoundToInt(saleValue * (1f + KidneyISaleBonus));
+                saleValue *= 1f + kidneyI.buffStrength;
             }
 
-            if (HasSoldOrgan("spleen"))
+            var spleen = FindSoldOrgan(SpleenId);
+            if (spleen != null)
             {
-                saleValue -= SpleenSalePenalty;
+                saleValue -= spleen.debuffStrength;
             }
 
-            return Mathf.Max(0, saleValue);
+            return Mathf.Max(0, Mathf.RoundToInt(saleValue));
         }
 
         public int Sell(OrganData organ)
@@ -114,6 +122,31 @@ namespace Game.Organs
         }
 
         /// <summary>
+        /// Kritik Hâl (GDD §04): true when money is below the min-bet threshold
+        /// (scaled down if Spleen's buff was sold — GDD: "Kritik Hâl eşiği düşer")
+        /// AND 2 or fewer sellable organs remain. The Heart is excluded from the
+        /// count — it is the separate soft-lock fallback, not a normal sale.
+        /// </summary>
+        public bool IsCriticalState(int minBet)
+        {
+            int money = bank?.Balance ?? 0;
+            float threshold = minBet * SpleenCriticalThresholdMultiplier();
+            if (money >= threshold)
+            {
+                return false;
+            }
+
+            int sellableRemaining = organs.Count(organ => organ.id != HeartId && !IsSold(organ));
+            return sellableRemaining <= CriticalOrganThreshold;
+        }
+
+        private float SpleenCriticalThresholdMultiplier()
+        {
+            var spleen = FindSoldOrgan(SpleenId);
+            return spleen != null ? spleen.buffStrength : 1f;
+        }
+
+        /// <summary>
         /// Gives the Heart as the final $5.000 payment (fixed, no sale modifiers)
         /// when it is unlocked, then ends the run. Returns 0 (no-op) while locked.
         /// </summary>
@@ -135,9 +168,9 @@ namespace Game.Organs
             return payout;
         }
 
-        private bool HasSoldOrgan(string organId)
+        private OrganData FindSoldOrgan(string organId)
         {
-            return soldOrgans.Any(organ => organ.id == organId);
+            return soldOrgans.FirstOrDefault(organ => organ.id == organId);
         }
     }
 }
