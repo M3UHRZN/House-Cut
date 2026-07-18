@@ -13,9 +13,11 @@ namespace Game.Core
         [SerializeField] private GameFlowRunner flowRunner;
         [SerializeField] private EconomyRunner economyRunner;
         [SerializeField] private Transform cardRoot;
-        [SerializeField] private GameObject cardPrefab;
-        [SerializeField] private Transform[] playerSlots;
-        [SerializeField] private Transform[] dealerSlots;
+        [SerializeField] private CardPrefabCatalog cardPrefabCatalog;
+        [SerializeField] private Transform playerCardAnchor;
+        [SerializeField] private Transform dealerCardAnchor;
+        [SerializeField, Min(0f)] private float cardSpacing = 0.38f;
+        [SerializeField, Min(0.01f)] private float cardScale = 0.65f;
         [SerializeField, Min(0f)] private float resultDisplaySeconds = 1.5f;
 
         private readonly List<CardVisual> playerCards = new();
@@ -24,9 +26,10 @@ namespace Game.Core
 
         private void Awake()
         {
-            if (configProvider == null || configProvider.Config == null || flowRunner == null || economyRunner == null)
+            if (configProvider == null || configProvider.Config == null || flowRunner == null || economyRunner == null ||
+                cardPrefabCatalog == null || playerCardAnchor == null || dealerCardAnchor == null)
             {
-                Debug.LogError($"{nameof(BlackjackLoopRunner)}: Config, GameFlowRunner ve EconomyRunner atanmalı.", this);
+                Debug.LogError($"{nameof(BlackjackLoopRunner)}: Config, akış, ekonomi, kart kataloğu ve Player/Dealer anchor atanmalı.", this);
                 enabled = false;
             }
         }
@@ -108,8 +111,7 @@ namespace Game.Core
         private void OnCardDealt(Card card, bool isDealer, bool faceUp)
         {
             List<CardVisual> views = isDealer ? dealerCards : playerCards;
-            Transform[] slots = isDealer ? dealerSlots : playerSlots;
-            CardVisual view = CreateCardView(views.Count, slots, isDealer);
+            CardVisual view = CreateCardView(card, views.Count, isDealer);
             view.SetCard(card, faceUp);
             views.Add(view);
         }
@@ -122,32 +124,37 @@ namespace Game.Core
             }
         }
 
-        private CardVisual CreateCardView(int index, Transform[] slots, bool isDealer)
+        private CardVisual CreateCardView(Card card, int index, bool isDealer)
         {
             Transform parent = cardRoot != null ? cardRoot : transform;
-            GameObject cardObject = cardPrefab != null
-                ? Instantiate(cardPrefab, parent)
-                : GameObject.CreatePrimitive(PrimitiveType.Cube);
+            Transform anchor = isDealer ? dealerCardAnchor : playerCardAnchor;
+            GameObject prefab = cardPrefabCatalog.GetPrefab(card);
 
-            if (cardPrefab == null)
+            if (prefab == null)
             {
+                Debug.LogWarning($"{nameof(BlackjackLoopRunner)}: {card} için prefab bulunamadı; placeholder kullanılıyor.", this);
+                GameObject cardObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cardObject.transform.SetParent(parent, false);
                 cardObject.transform.localScale = new Vector3(1.2f, 0.08f, 1.8f);
+                cardObject.transform.SetPositionAndRotation(
+                    CardPlacement.GetPosition(anchor, index, cardSpacing),
+                    anchor.rotation);
+                return cardObject.AddComponent<CardVisual>();
             }
 
-            Transform slot = slots != null && index < slots.Length ? slots[index] : null;
-            if (slot != null)
-            {
-                cardObject.transform.SetPositionAndRotation(slot.position, slot.rotation);
-            }
-            else
-            {
-                float row = isDealer ? 1.2f : -1.2f;
-                cardObject.transform.localPosition = new Vector3((index - 1) * 1.4f, 0.1f, row);
-                cardObject.transform.localRotation = Quaternion.identity;
-            }
+            var viewObject = new GameObject($"{(isDealer ? "Dealer" : "Player")}_{card}");
+            viewObject.transform.SetParent(parent, false);
+            viewObject.transform.SetPositionAndRotation(
+                CardPlacement.GetPosition(anchor, index, cardSpacing),
+                anchor.rotation);
 
-            return cardObject.GetComponent<CardVisual>() ?? cardObject.AddComponent<CardVisual>();
+            GameObject model = Instantiate(prefab, viewObject.transform);
+            model.transform.localPosition = Vector3.zero;
+            model.transform.localScale *= cardScale;
+
+            CardVisual view = viewObject.AddComponent<CardVisual>();
+            view.Initialize(model.transform);
+            return view;
         }
 
         private IEnumerator AdvanceAfterResult()

@@ -5,13 +5,46 @@ namespace Game.Core
 {
     public class CardVisual : MonoBehaviour
     {
+        [SerializeField] private Transform model;
+
         private Renderer cardRenderer;
         private TextMesh faceLabel;
+        private Quaternion faceUpRotation;
+        private bool hasModelRotation;
+
+        public void Initialize(Transform cardModel)
+        {
+            model = cardModel;
+            if (model == null)
+            {
+                hasModelRotation = false;
+                return;
+            }
+
+            faceUpRotation = model.localRotation;
+            hasModelRotation = true;
+        }
 
         public void SetCard(Card card, bool faceUp)
         {
+            if (model != null)
+            {
+                if (!hasModelRotation)
+                {
+                    faceUpRotation = model.localRotation;
+                    hasModelRotation = true;
+                }
+
+                model.localRotation = faceUpRotation * Quaternion.Euler(faceUp ? Vector3.zero : new Vector3(180f, 0f, 0f));
+                return;
+            }
+
             EnsureVisuals();
-            cardRenderer.material.color = faceUp ? Color.white : new Color(0.08f, 0.12f, 0.35f);
+            if (cardRenderer != null)
+            {
+                cardRenderer.material.color = faceUp ? Color.white : new Color(0.08f, 0.12f, 0.35f);
+            }
+
             faceLabel.text = faceUp ? card.ToString() : "?";
             faceLabel.color = faceUp ? Color.black : Color.white;
         }

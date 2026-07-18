@@ -21,3 +21,6 @@ approval_mode = "approve"
 
 [mcp_servers.UnityMCP.tools.manage_scene]
 approval_mode = "approve"
+
+[mcp_servers.UnityMCP.tools.manage_camera]
+approval_mode = "approve"
