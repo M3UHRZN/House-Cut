@@ -20,6 +20,10 @@ MonoBehaviour:
   debuffStrength: 1
   buffType: 3
   buffStrength: 0.2
+  debuffDescription: "Sadece koyu vignette / nab\u0131z katman\u0131; d\xFC\u015F\xFCk
+    an\u0131k bedel."
+  buffDescription: "\u0130yi kur: her organ sat\u0131\u015F\u0131nda +%20 daha fazla
+    nakit al\u0131rs\u0131n."
   mesh: {fileID: 0}
   icon: {fileID: 0}
   extractionSfx: {fileID: 0}

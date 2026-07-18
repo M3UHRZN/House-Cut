@@ -20,6 +20,10 @@ MonoBehaviour:
   debuffStrength: 0.6
   buffType: 5
   buffStrength: 1
+  debuffDescription: "Her kart \xE7eki\u015Finde k\u0131sa bulant\u0131 dalgas\u0131;
+    kartlar 0,6 sn e\u011Filip toparlan\u0131r."
+  buffDescription: "Kart \xC7ekti\u011Finde, yeni toplam\u0131n 21'e ka\xE7 kald\u0131\u011F\u0131
+    bir an vurgulan\u0131r (hesap kolayl\u0131\u011F\u0131)."
   mesh: {fileID: 0}
   icon: {fileID: 0}
   extractionSfx: {fileID: 0}

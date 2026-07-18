@@ -20,6 +20,10 @@ MonoBehaviour:
   debuffStrength: 1
   buffType: 0
   buffStrength: 0
+  debuffDescription: "Yaln\u0131z ba\u015Fka organ kalmay\u0131nca a\xE7\u0131l\u0131r;
+    son sat\u0131\u015F ve oyun sonu."
+  buffDescription: "Yok \u2014 kalp yaln\u0131zca oyun sonu \xF6demesidir; verildi\u011Fi
+    an ko\u015Fu biter."
   mesh: {fileID: 0}
   icon: {fileID: 0}
   extractionSfx: {fileID: 0}

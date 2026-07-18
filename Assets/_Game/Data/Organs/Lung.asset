@@ -20,6 +20,10 @@ MonoBehaviour:
   debuffStrength: 5
   buffType: 7
   buffStrength: 5
+  debuffDescription: "H\u0131r\u0131lt\u0131 + FOV nab\u0131z\u0131; oyuncu karar
+    s\xFCresi 15 sn'den 10 sn'ye iner."
+  buffDescription: "Derin nefes: her 3 elde bir, sonraki karar\u0131nda s\xFCre +5
+    sn uzar."
   mesh: {fileID: 0}
   icon: {fileID: 0}
   extractionSfx: {fileID: 0}

@@ -43,6 +43,8 @@ namespace Game.Data
         public float debuffStrength;
         public OrganBuffType buffType;
         public float buffStrength;
+        [TextArea] public string debuffDescription;
+        [TextArea] public string buffDescription;
 
         [Header("Presentation")]
         public Mesh mesh;
