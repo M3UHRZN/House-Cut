@@ -41,6 +41,14 @@ namespace Game.Menu
 
         private void Awake()
         {
+            // Oyun sahnesindeki CameraLookRunner imleci kilitleyip gizliyor
+            // (Cursor.lockState/visible global ve statiktir, sahne değişince
+            // sıfırlanmaz). Esc ile buraya dönüldüğünde imleç kilitli/görünmez
+            // kalırsa menü tıklanamaz olur — bu yüzden menüye girer girmez
+            // imleci mutlaka serbest ve görünür yapıyoruz.
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
             if (playButton != null) playButton.onClick.AddListener(Play);
             if (settingsButton != null) settingsButton.onClick.AddListener(OpenSettings);
             if (creditsButton != null) creditsButton.onClick.AddListener(OpenCredits);

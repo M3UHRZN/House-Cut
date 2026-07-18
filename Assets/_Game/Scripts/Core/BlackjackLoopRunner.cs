@@ -57,7 +57,24 @@ namespace Game.Core
 
         private void Update()
         {
+            // Duraklatma menüsü açıkken (PauseController Time.timeScale=0 yapar) oyun
+            // döngüsü ve klavye girdisi işlenmesin — yoksa menü arkasında el çekileb/
+            // durulabilir ve karar zamanlayıcısı yanlış ilerlerdi.
+            if (Time.timeScale == 0f)
+            {
+                return;
+            }
+
             loop?.Tick(Time.deltaTime);
+
+            // Organ satışı (market) / çıkarma sekansı ekrandayken klavye girdisi
+            // işlenmesin. Her aksiyonun kendi state kontrolü zaten no-op yapıyor ama
+            // ok tuşları yine de "Bahis: $..." log'u basıyordu ve market açıkken
+            // klavyenin hiç tepki vermemesi beklenir.
+            if (loop != null && (loop.State == GameState.OrganSale || loop.State == GameState.Extraction))
+            {
+                return;
+            }
 
             Keyboard keyboard = Keyboard.current;
             if (keyboard == null)
@@ -173,6 +190,7 @@ namespace Game.Core
                 cardObject.transform.SetPositionAndRotation(
                     CardPlacement.GetPosition(anchor, index, cardSpacing),
                     anchor.rotation);
+                AssignCardsLayer(cardObject);
                 return cardObject.AddComponent<CardVisual>();
             }
 
@@ -186,9 +204,36 @@ namespace Game.Core
             model.transform.localPosition = Vector3.zero;
             model.transform.localScale *= cardScale;
 
+            // Kartları "Cards" layer'ına al: PS2 pikselasyon tam-ekran efekti bu
+            // layer'ı hariç tutup (renderer'daki Render Objects feature'ı ile) kartları
+            // net çizecek, böylece kart yüzleri okunur kalır. Model instantiate
+            // edildikten SONRA, tüm çocuklar dahil ata.
+            AssignCardsLayer(viewObject);
+
             CardVisual view = viewObject.AddComponent<CardVisual>();
             view.Initialize(model.transform);
             return view;
+        }
+
+        // "Cards" layer'ı Project Settings'te tanımlı değilse (-1) sessizce atla.
+        private static void AssignCardsLayer(GameObject root)
+        {
+            int cardsLayer = LayerMask.NameToLayer("Cards");
+            if (cardsLayer < 0)
+            {
+                return;
+            }
+
+            SetLayerRecursively(root, cardsLayer);
+        }
+
+        private static void SetLayerRecursively(GameObject go, int layer)
+        {
+            go.layer = layer;
+            foreach (Transform child in go.transform)
+            {
+                SetLayerRecursively(child.gameObject, layer);
+            }
         }
 
         private IEnumerator AdvanceAfterResult()

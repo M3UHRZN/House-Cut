@@ -82,7 +82,19 @@ namespace Game.Core
 
         private void OnStateChanged(GameState previous, GameState next)
         {
-            bool organSaleSequence = next == GameState.OrganSale || next == GameState.Extraction;
+            // BlackjackLoop.OnStateChanged reacts to Extraction by chaining further
+            // transitions (BetCheck -> Deal -> PlayerTurn) synchronously, re-entrantly,
+            // inside this same StateChanged dispatch. That means by the time our
+            // subscription is invoked with the ORIGINAL (previous, next) pair, those
+            // nested transitions may have already moved flow.CurrentState further along —
+            // "next" here can be stale. Always read the live CurrentState instead of
+            // trusting the event's own parameter, otherwise the outer, stale Extraction
+            // call re-unlocks the camera after the nested calls already locked it back.
+            GameState liveState = flowRunner != null && flowRunner.Flow != null
+                ? flowRunner.Flow.CurrentState
+                : next;
+
+            bool organSaleSequence = liveState == GameState.OrganSale || liveState == GameState.Extraction;
             controller.SetFreeLookEnabled(!organSaleSequence);
 
             if (organSaleSequence)
