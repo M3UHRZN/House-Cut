@@ -26,6 +26,9 @@ namespace Game.Organs
         /// <summary>Raised when the Heart is extracted (final payment); the run ends.</summary>
         public event Action HeartExtracted;
 
+        /// <summary>Raised on every normal sale (not the Heart) so EffectStack can pick up the organ's permanent effect.</summary>
+        public event Action<OrganData> OrganSold;
+
         public OrganManager(IEnumerable<OrganData> organs)
             : this(organs, null)
         {
@@ -84,6 +87,7 @@ namespace Game.Organs
 
             soldOrgans.Add(organ);
             bank?.Deposit(saleValue);
+            OrganSold?.Invoke(organ);
             return saleValue;
         }
 
