@@ -31,6 +31,7 @@ namespace Game.Organs
 
         [SerializeField] private GameConfigProvider configProvider;
         [SerializeField] private GameFlowRunner flowRunner;
+        [SerializeField] private EconomyRunner economyRunner;
         [SerializeField] private OrganData[] organs;
 
         [Header("UI")]
@@ -48,7 +49,6 @@ namespace Game.Organs
         [SerializeField] private TMP_Text tooltipBuffText;
 
         private readonly List<OrganTileView> tiles = new();
-        private GameConfig runtimeConfig;
         private Bank bank;
 
         public OrganManager OrganManager { get; private set; }
@@ -63,21 +63,6 @@ namespace Game.Organs
 
         private void Awake()
         {
-            GameConfig config = configProvider != null ? configProvider.Config : null;
-            if (config == null)
-            {
-                runtimeConfig = ScriptableObject.CreateInstance<GameConfig>();
-                config = runtimeConfig;
-            }
-
-            bank = new Bank(config);
-            OrganManager = new OrganManager(organs, bank);
-            Controller = new OrganSaleController(OrganManager, bank);
-            RequiredBet = config.minBet;
-
-            BuildTiles();
-            HideTooltip();
-
             if (satButton != null)
             {
                 satButton.onClick.AddListener(OnSatClicked);
@@ -88,6 +73,26 @@ namespace Game.Organs
 
         private void Start()
         {
+            if (economyRunner == null)
+            {
+                economyRunner = FindAnyObjectByType<EconomyRunner>();
+            }
+
+            if (economyRunner == null || economyRunner.Economy == null)
+            {
+                Debug.LogError($"{nameof(OrganSaleRunner)}: Oyunun EconomyRunner bileşeni bulunamadı.", this);
+                enabled = false;
+                return;
+            }
+
+            bank = economyRunner.Economy.MoneyBank;
+            OrganManager = new OrganManager(organs, bank);
+            Controller = new OrganSaleController(OrganManager, bank);
+            RequiredBet = economyRunner.Economy.RequiredBet;
+
+            BuildTiles();
+            HideTooltip();
+
             // Subscribe in Start so GameFlowRunner.Awake has already created
             // Flow (Awake order between components is undefined).
             if (flowRunner != null && flowRunner.Flow != null)
@@ -103,16 +108,13 @@ namespace Game.Organs
                 flowRunner.Flow.StateChanged -= OnStateChanged;
             }
 
-            if (runtimeConfig != null)
-            {
-                Destroy(runtimeConfig);
-            }
         }
 
         private void OnStateChanged(GameState previous, GameState next)
         {
             if (next == GameState.OrganSale)
             {
+                RequiredBet = economyRunner.Economy.RequiredBet;
                 Show();
             }
         }

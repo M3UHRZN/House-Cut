@@ -56,6 +56,16 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
+        public void MoneyBank_DepositUpdatesEconomyBalance()
+        {
+            var economy = new EconomyController(config);
+
+            economy.MoneyBank.Deposit(500);
+
+            Assert.AreEqual(1500, economy.Balance);
+        }
+
+        [Test]
         public void BeginHand_SelectorStartsAtBaseBet_FundsEnough()
         {
             var economy = new EconomyController(config);
