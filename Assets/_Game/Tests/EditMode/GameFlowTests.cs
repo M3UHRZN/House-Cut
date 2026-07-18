@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Game.Core;
 using NUnit.Framework;
 
@@ -77,6 +78,43 @@ namespace Game.Tests.EditMode
 
             Assert.AreEqual(GameState.Intro, observedOld);
             Assert.AreEqual(GameState.BetCheck, observedNew);
+        }
+
+        [Test]
+        public void AllowedTransitions_MatchGddTableExactly()
+        {
+            var expected = new Dictionary<GameState, GameState[]>
+            {
+                { GameState.Intro, new[] { GameState.BetCheck } },
+                { GameState.BetCheck, new[] { GameState.Deal, GameState.OrganSale, GameState.GameOver } },
+                { GameState.OrganSale, new[] { GameState.Extraction } },
+                { GameState.Extraction, new[] { GameState.BetCheck, GameState.GameOver } },
+                { GameState.Deal, new[] { GameState.PlayerTurn } },
+                { GameState.PlayerTurn, new[] { GameState.Deal, GameState.DealerTurn } },
+                { GameState.DealerTurn, new[] { GameState.Resolve } },
+                { GameState.Resolve, new[] { GameState.NextHand } },
+                { GameState.NextHand, new[] { GameState.BetCheck } },
+                { GameState.GameOver, new[] { GameState.Intro } },
+            };
+
+            foreach (var pair in expected)
+            {
+                CollectionAssert.AreEquivalent(
+                    pair.Value,
+                    GameFlow.GetAllowedTransitions(pair.Key),
+                    $"transitions for {pair.Key} did not match the GDD table");
+            }
+        }
+
+        [Test]
+        public void EveryState_CanReachGameOverOrLoopsBackToIntro()
+        {
+            // Sanity check: no state is a dead end that can never progress.
+            foreach (GameState state in Enum.GetValues(typeof(GameState)))
+            {
+                var allowed = GameFlow.GetAllowedTransitions(state);
+                Assert.IsNotEmpty(allowed, $"{state} has no outgoing transitions — dead end");
+            }
         }
     }
 }
