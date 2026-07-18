@@ -18,11 +18,17 @@ namespace Game.Presentation
     /// aynı deseni izliyor); gerçek paylaşılan instance'a bağlamak ayrı bir
     /// entegrasyon işi, GameFlow'a burada dokunulmuyor.
     ///
-    /// FOV ve titreme kasıtlı olarak Camera.fieldOfView / transform yerine
+    /// Titreme kasıtlı olarak Camera.fieldOfView / transform yerine
     /// CinemachineCamera.Lens / transform üzerinden uygulanır: sahnede bir
     /// CinemachineBrain aktif ve Main Camera'yı her LateUpdate'te vcam'a göre
     /// eziyor — doğrudan Camera'ya yazmak CameraLookRunner'da yaşanan "hiç
-    /// değişmiyor" sorununu FOV/pozisyon için de tekrarlardı.
+    /// değişmiyor" sorununu pozisyon için de tekrarlardı.
+    ///
+    /// FOV'u bu script YAZMAZ — CameraLookRunner de (zoom için) aynı
+    /// Lens.FieldOfView'a yazdığından iki yazıcı birbirini ezip titremeye
+    /// sebep olurdu. Bunun yerine NarrowedFovDelta'yı ve IsCritical'ı
+    /// açığa çıkarır; tek yazıcı olan CameraLookRunner bunu kendi zoom
+    /// hedefinden düşerek uygular.
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
     public class CriticalStateRunner : MonoBehaviour
@@ -61,7 +67,6 @@ namespace Game.Presentation
         private Vignette vignette;
         private ChromaticAberration chromaticAberration;
 
-        private float baseFov;
         private Color baseVignetteColor;
         private float baseVignetteIntensity;
         private float baseChromaticAberrationIntensity;
@@ -70,6 +75,9 @@ namespace Game.Presentation
         private float periodicShakeTimer;
 
         public bool IsCritical { get; private set; }
+
+        /// <summary>How much CameraLookRunner should narrow its FOV target while critical.</summary>
+        public float NarrowedFovDelta => narrowedFovDelta;
 
         /// <summary>Exposed read-only so a test/editor harness can drive this Runner's own OrganManager/Bank in Play mode.</summary>
         public OrganManager OrganManager => organManager;
@@ -119,7 +127,6 @@ namespace Game.Presentation
 
             if (cinemachineCamera != null)
             {
-                baseFov = cinemachineCamera.Lens.FieldOfView;
                 cinemachineRestPosition = cinemachineCamera.transform.localPosition;
                 smoothedJitterBase = cinemachineRestPosition;
             }
@@ -172,11 +179,6 @@ namespace Game.Presentation
 
             if (cinemachineCamera != null)
             {
-                float targetFov = IsCritical ? baseFov - narrowedFovDelta : baseFov;
-                LensSettings lens = cinemachineCamera.Lens;
-                lens.FieldOfView = Mathf.Lerp(lens.FieldOfView, targetFov, blend);
-                cinemachineCamera.Lens = lens;
-
                 // Critical-state jitter blends in/out slowly like the other
                 // presentation values. The breath offset is applied straight on
                 // top, undamped, so its sine curve's own up-then-back-down shape
