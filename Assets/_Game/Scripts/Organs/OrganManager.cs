@@ -12,6 +12,8 @@ namespace Game.Organs
         private const int SpleenSalePenalty = 300;
         private const float KidneyISaleBonus = 0.2f;
         private const string HeartId = "heart";
+        private const string SpleenId = "spleen";
+        private const int CriticalOrganThreshold = 2;
 
         private readonly List<OrganData> organs;
         private readonly HashSet<OrganData> soldOrgans = new();
@@ -111,6 +113,36 @@ namespace Game.Organs
             }
 
             return organs.All(organ => organ.id == HeartId || IsSold(organ));
+        }
+
+        /// <summary>
+        /// Kritik Hâl (GDD §04): true when money is below the min-bet threshold
+        /// (scaled down if Spleen's buff was sold — GDD: "Kritik Hâl eşiği düşer")
+        /// AND 2 or fewer sellable organs remain. The Heart is excluded from the
+        /// count — it is the separate soft-lock fallback, not a normal sale.
+        /// </summary>
+        public bool IsCriticalState(int minBet)
+        {
+            int money = bank?.Balance ?? 0;
+            float threshold = minBet * SpleenCriticalThresholdMultiplier();
+            if (money >= threshold)
+            {
+                return false;
+            }
+
+            int sellableRemaining = organs.Count(organ => organ.id != HeartId && !IsSold(organ));
+            return sellableRemaining <= CriticalOrganThreshold;
+        }
+
+        private float SpleenCriticalThresholdMultiplier()
+        {
+            if (!HasSoldOrgan(SpleenId))
+            {
+                return 1f;
+            }
+
+            var spleen = organs.FirstOrDefault(organ => organ.id == SpleenId);
+            return spleen != null ? spleen.buffStrength : 1f;
         }
 
         /// <summary>
