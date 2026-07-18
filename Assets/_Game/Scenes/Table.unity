@@ -8517,9 +8517,9 @@ MonoBehaviour:
   cardPrefabCatalog: {fileID: 11400000, guid: c4b4ef67a5eecb848a454cfe9e82396f, type: 2}
   playerCardAnchor: {fileID: 568898840}
   dealerCardAnchor: {fileID: 446704707}
-  cardSpacing: 0.25
-  cardScale: 0.17
-  resultDisplaySeconds: 1.5
+  cardSpacing: 0.228
+  cardScale: 0.23
+  resultDisplaySeconds: 3
   showCardGizmos: 1
   gizmoPreviewCardCount: 6
 --- !u!114 &1294278534
