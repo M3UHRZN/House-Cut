@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Game.Data;
@@ -10,6 +11,7 @@ namespace Game.Organs
     {
         private const int SpleenSalePenalty = 300;
         private const float KidneyISaleBonus = 0.2f;
+        private const string HeartId = "heart";
 
         private readonly List<OrganData> organs;
         private readonly HashSet<OrganData> soldOrgans = new();
@@ -17,6 +19,12 @@ namespace Game.Organs
 
         public IReadOnlyList<OrganData> Organs => organs;
         public IReadOnlyCollection<OrganData> SoldOrgans => soldOrgans;
+
+        /// <summary>True once the Heart has been given — the run is over (GDD §04).</summary>
+        public bool IsGameOver { get; private set; }
+
+        /// <summary>Raised when the Heart is extracted (final payment); the run ends.</summary>
+        public event Action HeartExtracted;
 
         public OrganManager(IEnumerable<OrganData> organs)
             : this(organs, null)
@@ -61,6 +69,13 @@ namespace Game.Organs
 
         public int Sell(OrganData organ)
         {
+            // The Heart is never a normal sale — it is the soft-lock fallback and
+            // is given only through SellHeart, which ends the run (GDD §04).
+            if (organ != null && organ.id == HeartId)
+            {
+                return 0;
+            }
+
             var saleValue = GetSaleValue(organ);
             if (saleValue == 0)
             {
@@ -70,6 +85,50 @@ namespace Game.Organs
             soldOrgans.Add(organ);
             bank?.Deposit(saleValue);
             return saleValue;
+        }
+
+        /// <summary>
+        /// Heart safety (GDD §04): the Heart auto-unlocks only when money is below
+        /// the min bet AND every other organ has already been sold, so the sale
+        /// screen can never soft-lock.
+        /// </summary>
+        public bool IsHeartUnlocked(int minBet)
+        {
+            var heart = organs.FirstOrDefault(organ => organ.id == HeartId);
+            if (heart == null || IsSold(heart))
+            {
+                return false;
+            }
+
+            int money = bank?.Balance ?? 0;
+            if (money >= minBet)
+            {
+                return false;
+            }
+
+            return organs.All(organ => organ.id == HeartId || IsSold(organ));
+        }
+
+        /// <summary>
+        /// Gives the Heart as the final $5.000 payment (fixed, no sale modifiers)
+        /// when it is unlocked, then ends the run. Returns 0 (no-op) while locked.
+        /// </summary>
+        public int SellHeart(int minBet)
+        {
+            if (!IsHeartUnlocked(minBet))
+            {
+                return 0;
+            }
+
+            var heart = organs.First(organ => organ.id == HeartId);
+            soldOrgans.Add(heart);
+
+            int payout = heart.dollarValue;
+            bank?.Deposit(payout);
+
+            IsGameOver = true;
+            HeartExtracted?.Invoke();
+            return payout;
         }
 
         private bool HasSoldOrgan(string organId)
