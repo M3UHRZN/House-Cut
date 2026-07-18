@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7eddb58b76a9d254f9f8c95dcd275f18, type: 3}
+  m_Name: OrganData
+  m_EditorClassIdentifier: Game::Game.Data.OrganData
+  id: 
+  displayName: 
+  dollarValue: 0
+  quantity: 1
+  debuffType: 0
+  debuffStrength: 0
+  buffType: 0
+  buffStrength: 0
+  mesh: {fileID: 0}
+  icon: {fileID: 0}
+  extractionSfx: {fileID: 0}
+  postProcessProfile: {fileID: 0}

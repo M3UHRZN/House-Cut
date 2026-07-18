@@ -6,3 +6,15 @@ args = [
     "mcpforunityserver==10.1.0",
     "mcp-for-unity",
 ]
+
+[mcp_servers.UnityMCP.tools.manage_asset]
+approval_mode = "approve"
+
+[mcp_servers.UnityMCP.tools.manage_script]
+approval_mode = "approve"
+
+[mcp_servers.UnityMCP.tools.run_tests]
+approval_mode = "approve"
+
+[mcp_servers.UnityMCP.tools.read_console]
+approval_mode = "approve"
