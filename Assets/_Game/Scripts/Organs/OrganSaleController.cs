@@ -62,16 +62,31 @@ namespace Game.Organs
         public int SelectedTotal => selected.Sum(organ => organManager.GetSaleValue(organ));
 
         /// <summary>SAT is only enabled once at least one organ is selected and the projected balance covers the required bet.</summary>
-        public bool CanConfirm(int requiredBet) =>
-            selected.Count > 0 && bank.Balance + SelectedTotal >= requiredBet;
+        public bool CanConfirm(int requiredBet)
+        {
+            if (selected.Count == 1 && selected[0].id == HeartId)
+            {
+                return organManager.IsHeartUnlocked(requiredBet);
+            }
+
+            return selected.Count > 0 && bank.Balance + SelectedTotal >= requiredBet;
+        }
 
         /// <summary>Sells every selected organ, in selection order, and clears the selection. Returns the total gained.</summary>
         public int Confirm()
         {
+            return Confirm(0);
+        }
+
+        /// <summary>Sells the selection, routing the final Heart through its game-ending sale path.</summary>
+        public int Confirm(int requiredBet)
+        {
             int total = 0;
             foreach (var organ in selected.ToList())
             {
-                total += organManager.Sell(organ);
+                total += organ.id == HeartId
+                    ? organManager.SellHeart(requiredBet)
+                    : organManager.Sell(organ);
             }
 
             selected.Clear();

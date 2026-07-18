@@ -87,7 +87,7 @@ namespace Game.Tests.EditMode
             {
                 { GameState.Intro, new[] { GameState.BetCheck } },
                 { GameState.BetCheck, new[] { GameState.Deal, GameState.OrganSale, GameState.GameOver } },
-                { GameState.OrganSale, new[] { GameState.Extraction } },
+                { GameState.OrganSale, new[] { GameState.Extraction, GameState.GameOver } },
                 { GameState.Extraction, new[] { GameState.BetCheck, GameState.GameOver } },
                 { GameState.Deal, new[] { GameState.PlayerTurn } },
                 { GameState.PlayerTurn, new[] { GameState.Deal, GameState.DealerTurn } },
@@ -133,6 +133,14 @@ namespace Game.Tests.EditMode
             bool accepted = flow.TryTransition(GameState.BetCheck);
             Assert.IsTrue(accepted, "the original signal should still allow a valid transition afterwards");
             Assert.AreEqual(GameState.BetCheck, flow.CurrentState);
+        }
+
+        [Test]
+        public void OrganSale_CanEndRunDirectlyAfterHeartSale()
+        {
+            CollectionAssert.Contains(
+                GameFlow.GetAllowedTransitions(GameState.OrganSale),
+                GameState.GameOver);
         }
 
         [Test]

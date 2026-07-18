@@ -9,7 +9,7 @@ namespace Game.Core
         {
             { GameState.Intro, new[] { GameState.BetCheck } },
             { GameState.BetCheck, new[] { GameState.Deal, GameState.OrganSale, GameState.GameOver } },
-            { GameState.OrganSale, new[] { GameState.Extraction } },
+            { GameState.OrganSale, new[] { GameState.Extraction, GameState.GameOver } },
             { GameState.Extraction, new[] { GameState.BetCheck, GameState.GameOver } },
             { GameState.Deal, new[] { GameState.PlayerTurn } },
             { GameState.PlayerTurn, new[] { GameState.Deal, GameState.DealerTurn } },

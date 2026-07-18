@@ -127,6 +127,33 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(0, controller.Selected.Count);
         }
 
+        [Test]
+        public void Confirm_HeartUsesFinalSaleAndEndsRun()
+        {
+            organManager.Sell(ear);
+            organManager.Sell(spleen);
+            organManager.Sell(kidneyI);
+            controller.ToggleSelection(heart);
+
+            int total = controller.Confirm(3000);
+
+            Assert.AreEqual(5000, total);
+            Assert.IsTrue(organManager.IsSold(heart));
+            Assert.IsTrue(organManager.IsGameOver);
+            Assert.AreEqual(7300, bank.Balance);
+        }
+
+        [Test]
+        public void CanConfirm_UnlockedHeart_IgnoresUnreachableBetThreshold()
+        {
+            organManager.Sell(ear);
+            organManager.Sell(spleen);
+            organManager.Sell(kidneyI);
+            controller.ToggleSelection(heart);
+
+            Assert.IsTrue(controller.CanConfirm(10000));
+        }
+
         private static OrganData CreateOrgan(
             string id,
             int dollarValue,

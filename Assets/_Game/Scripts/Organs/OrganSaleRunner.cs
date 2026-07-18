@@ -245,15 +245,16 @@ namespace Game.Organs
 
         private void OnSatClicked()
         {
-            int total = Controller.Confirm();
+            int total = Controller.Confirm(RequiredBet);
             Debug.Log($"[BedenDefteri] Organ satışı: +${total}, yeni bakiye ${bank.Balance}");
 
             if (flowRunner != null && flowRunner.Flow != null)
             {
                 flowRunner.Flow.SignalTransitionReady();
-                if (!flowRunner.Flow.TryTransition(GameState.Extraction))
+                GameState nextState = OrganManager.IsGameOver ? GameState.GameOver : GameState.Extraction;
+                if (!flowRunner.Flow.TryTransition(nextState))
                 {
-                    Debug.LogWarning("[BedenDefteri] GameFlow Extraction geçişi başarısız (state uyumsuz).");
+                    Debug.LogWarning($"[BedenDefteri] GameFlow {nextState} geçişi başarısız (state uyumsuz).");
                 }
             }
 
