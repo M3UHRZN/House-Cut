@@ -29,9 +29,19 @@ namespace Game.Core
             this.pitchLimitDegrees = pitchLimitDegrees;
         }
 
+        /// <summary>
+        /// Disabling also snaps yaw/pitch back to center (GDD §06: "kamera
+        /// otomatik olarak beden defterine döner") — a hard reset, not a smooth
+        /// blend, matching the project's "kapsam hilesi" simplicity elsewhere.
+        /// </summary>
         public void SetFreeLookEnabled(bool enabled)
         {
             FreeLookEnabled = enabled;
+            if (!enabled)
+            {
+                Yaw = 0f;
+                Pitch = 0f;
+            }
         }
 
         /// <summary>Accumulates a mouse-driven look delta (in degrees), clamped to the limits.</summary>

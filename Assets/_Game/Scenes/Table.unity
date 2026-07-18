@@ -9448,6 +9448,12 @@ MonoBehaviour:
   yawLimitDegrees: 35
   pitchLimitDegrees: 25
   sensitivity: 0.05
+  lookSmoothing: 12
+  flowRunner: {fileID: 620165279}
+  cinemachineCamera: {fileID: 1690157538}
+  zoomFieldOfView: 35
+  zoomSmoothing: 10
+  criticalStateRunner: {fileID: 2082679533}
 --- !u!1 &1549437811
 GameObject:
   m_ObjectHideFlags: 0
@@ -12068,7 +12074,7 @@ MonoBehaviour:
   shakeFrequency: 12
   criticalVignetteColor: {r: 0.5, g: 0, b: 0, a: 1}
   criticalVignetteIntensity: 0.45
-  criticalChromaticAberrationIntensity: 0.6
+  criticalChromaticAberrationIntensity: 100
   blendSpeed: 3
   periodicShakeEnabled: 1
   periodicShakeInterval: 1.58

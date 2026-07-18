@@ -59,16 +59,20 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void FreeLookDisabled_IgnoresDelta()
+        public void FreeLookDisabled_RecentersAndIgnoresFurtherDelta()
         {
             var controller = new CameraLookController(35f, 25f);
             controller.ApplyDelta(10f, 10f);
 
             controller.SetFreeLookEnabled(false);
+
+            Assert.AreEqual(0f, controller.Yaw);
+            Assert.AreEqual(0f, controller.Pitch);
+
             controller.ApplyDelta(10f, 10f);
 
-            Assert.AreEqual(10f, controller.Yaw);
-            Assert.AreEqual(10f, controller.Pitch);
+            Assert.AreEqual(0f, controller.Yaw);
+            Assert.AreEqual(0f, controller.Pitch);
         }
 
         [Test]
