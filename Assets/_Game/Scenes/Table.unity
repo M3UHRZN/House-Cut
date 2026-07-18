@@ -8340,6 +8340,73 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1293867791}
   m_CullTransparentMesh: 1
+--- !u!1 &1294278532
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1294278535}
+  - component: {fileID: 1294278534}
+  - component: {fileID: 1294278533}
+  m_Layer: 0
+  m_Name: GameLoop
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1294278533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294278532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c651d473d29eb6f43a0f55e77443d296, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game::Game.Core.BlackjackLoopRunner
+  configProvider: {fileID: 1828241800}
+  flowRunner: {fileID: 620165279}
+  economyRunner: {fileID: 1294278534}
+  cardRoot: {fileID: 0}
+  cardPrefab: {fileID: 0}
+  playerSlots: []
+  dealerSlots: []
+  resultDisplaySeconds: 1.5
+--- !u!114 &1294278534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294278532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a9cd0b4491f5074491a365534cc982b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game::Game.Economy.EconomyRunner
+  configProvider: {fileID: 1828241800}
+  slowerRamp: 0
+--- !u!4 &1294278535
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294278532}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1294678544
 GameObject:
   m_ObjectHideFlags: 0
@@ -10825,7 +10892,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1956474317}
-  - component: {fileID: 1956474316}
   m_Layer: 0
   m_Name: PlayerTurn
   m_TagString: Untagged
@@ -10833,19 +10899,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1956474316
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1956474315}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddac82a331b18c04ca340df8439559c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Game::Game.Core.PlayerTurnRunner
-  configProvider: {fileID: 1828241800}
 --- !u!4 &1956474317
 Transform:
   m_ObjectHideFlags: 0
@@ -12011,3 +12064,4 @@ SceneRoots:
   - {fileID: 1690157539}
   - {fileID: 1108462567}
   - {fileID: 2048049721}
+  - {fileID: 1294278535}

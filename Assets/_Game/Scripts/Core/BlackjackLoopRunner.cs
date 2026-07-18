@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Game.Cards;
 using Game.Economy;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Game.Core
 {
@@ -27,46 +28,54 @@ namespace Game.Core
             {
                 Debug.LogError($"{nameof(BlackjackLoopRunner)}: Config, GameFlowRunner ve EconomyRunner atanmalı.", this);
                 enabled = false;
-                return;
             }
-
-            loop = new BlackjackLoop(flowRunner.Flow, economyRunner.Economy, new Deck(), configProvider.Config.decisionTime);
-            loop.CardDealt += OnCardDealt;
-            loop.DealerHoleCardRevealed += OnDealerHoleCardRevealed;
-            loop.HandSettled += _ => StartCoroutine(AdvanceAfterResult());
         }
 
         private IEnumerator Start()
         {
+            // Build the loop in Start (not Awake): GameFlowRunner.Awake sets Flow
+            // and EconomyRunner.Awake sets Economy, and Awake order between
+            // components is undefined — reading them here guarantees both exist.
+            loop = new BlackjackLoop(flowRunner.Flow, economyRunner.Economy, new Deck(), configProvider.Config.decisionTime);
+            loop.CardDealt += OnCardDealt;
+            loop.DealerHoleCardRevealed += OnDealerHoleCardRevealed;
+            loop.HandSettled += _ => StartCoroutine(AdvanceAfterResult());
+
             yield return null;
-            loop?.Begin();
+            loop.Begin();
         }
 
         private void Update()
         {
             loop?.Tick(Time.deltaTime);
 
-            if (Input.GetKeyDown(KeyCode.Return))
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard == null)
+            {
+                return;
+            }
+
+            if (keyboard.enterKey.wasPressedThisFrame)
             {
                 ConfirmBet();
             }
-            else if (Input.GetKeyDown(KeyCode.H))
+            else if (keyboard.hKey.wasPressedThisFrame)
             {
                 Hit();
             }
-            else if (Input.GetKeyDown(KeyCode.Space))
+            else if (keyboard.spaceKey.wasPressedThisFrame)
             {
                 Stand();
             }
-            else if (Input.GetKeyDown(KeyCode.UpArrow))
+            else if (keyboard.upArrowKey.wasPressedThisFrame)
             {
                 RaiseBet();
             }
-            else if (Input.GetKeyDown(KeyCode.DownArrow))
+            else if (keyboard.downArrowKey.wasPressedThisFrame)
             {
                 LowerBet();
             }
-            else if (Input.GetKeyDown(KeyCode.D))
+            else if (keyboard.dKey.wasPressedThisFrame)
             {
                 UseDeferment();
             }
