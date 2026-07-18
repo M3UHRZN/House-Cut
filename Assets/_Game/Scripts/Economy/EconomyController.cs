@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Game.Cards;
 using Game.Data;
+using Game.Organs;
 
 namespace Game.Economy
 {
@@ -8,6 +10,10 @@ namespace Game.Economy
     /// lifecycle by composing the pieces built in the Money System group:
     /// Bank (money authority), BaseBetTracker (ramping base bet), BetSelector
     /// (per-hand bet choice) and DefermentToken (blackjack "Erteleme" reward).
+    /// Also owns the single shared OrganManager plus its two dependent
+    /// permanent-effect stacks (EffectStack for money bleed/regen, LungTimerEffect
+    /// for the decision timer) so every Runner in the scene reads/sells organs
+    /// through the same instance instead of each spinning up its own (GDD §08).
     /// Plain C# so it is unit-testable; the scene-side EconomyRunner hooks it
     /// into GameFlow.StateChanged.
     /// </summary>
@@ -17,22 +23,34 @@ namespace Game.Economy
         private readonly Bank bank;
         private readonly BaseBetTracker baseBet;
         private readonly DefermentToken deferment = new DefermentToken();
+        private readonly EffectStack effectStack;
+        private readonly LungTimerEffect lungTimer = new LungTimerEffect();
 
         private BetSelector activeSelector;
         private int lockedBet;
 
-        public EconomyController(GameConfig config, bool slowerRamp = false)
+        public EconomyController(GameConfig config, IEnumerable<OrganData> organs = null)
         {
             this.config = config;
             bank = new Bank(config);
-            baseBet = new BaseBetTracker(config, slowerRamp);
+            baseBet = new BaseBetTracker(config);
+            effectStack = new EffectStack(bank);
+            OrganManager = new OrganManager(organs ?? System.Array.Empty<OrganData>(), bank);
+            OrganManager.OrganSold += OnOrganSold;
         }
+
+        /// <summary>The single shared organ manager — OrganSaleRunner, CriticalStateRunner and
+        /// anything else that needs sold-organ state must read this instance, not build its own.</summary>
+        public OrganManager OrganManager { get; }
 
         public int Balance => bank.Balance;
         public Bank MoneyBank => bank;
         public int CurrentBaseBet => baseBet.Current;
         public int LockedBet => lockedBet;
         public bool HasDeferment => deferment.Has;
+
+        /// <summary>Effective decision time for the current hand, after Lung's sold debuff/buff (GDD §05).</summary>
+        public float CurrentDecisionTime => lungTimer.GetDecisionTime(config.decisionTime);
 
         /// <summary>The base bet the player must be able to cover to keep playing.</summary>
         public int RequiredBet => baseBet.Current;
@@ -76,6 +94,8 @@ namespace Game.Economy
                 deferment.Grant();
             }
 
+            effectStack.TickHandEnd(outcome);
+
             return delta;
         }
 
@@ -92,6 +112,23 @@ namespace Game.Economy
         public void AdvanceToNextHand()
         {
             baseBet.AdvanceHand();
+            lungTimer.AdvanceToNextHand();
+        }
+
+        /// <summary>
+        /// Feeds every organ sale into the two permanent-effect stacks (GDD §08):
+        /// EffectStack for the money bleed/regen, LungTimerEffect for the decision
+        /// timer. Also flips Böbrek II's slower base-bet ramp the moment it sells.
+        /// </summary>
+        private void OnOrganSold(OrganData organ)
+        {
+            effectStack.AddOrgan(organ);
+            lungTimer.AddOrgan(organ);
+
+            if (organ.buffType == OrganBuffType.SlowerBetRamp)
+            {
+                baseBet.SetSlowerRamp(true);
+            }
         }
     }
 }

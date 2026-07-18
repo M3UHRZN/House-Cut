@@ -12,11 +12,11 @@ namespace Game.Presentation
     /// <summary>
     /// Kritik Hâl sunum katmanı (GDD §04): OrganManager.IsCriticalState olunca
     /// nabız sesi, daralan FOV, hafif kamera titremesi ve kırmızı vignette
-    /// devreye girer, durum düzelince tabana yumuşakça döner. Zero-setup diğer
-    /// Runner'lar gibi kendi Bank/OrganManager'ını kurar — projede henüz
-    /// sahne çapında paylaşılan tek bir OrganManager yok (OrganSaleRunner da
-    /// aynı deseni izliyor); gerçek paylaşılan instance'a bağlamak ayrı bir
-    /// entegrasyon işi, GameFlow'a burada dokunulmuyor.
+    /// devreye girer, durum düzelince tabana yumuşakça döner. EconomyRunner'ın
+    /// paylaşılan EconomyController.OrganManager/Bank'ını okur — OrganSaleRunner
+    /// ile aynı instance, böylece satış ekranında satılan bir organ buradaki
+    /// kritik-hâl hesabına da hemen yansır (GDD §08). GameFlow'a burada
+    /// dokunulmuyor.
     ///
     /// Titreme kasıtlı olarak Camera.fieldOfView / transform yerine
     /// CinemachineCamera.Lens / transform üzerinden uygulanır: sahnede bir
@@ -34,7 +34,7 @@ namespace Game.Presentation
     public class CriticalStateRunner : MonoBehaviour
     {
         [SerializeField] private GameConfigProvider configProvider;
-        [SerializeField] private OrganData[] organs;
+        [SerializeField] private EconomyRunner economyRunner;
         [SerializeField] private Volume globalVolume;
         [SerializeField] private CinemachineCamera cinemachineCamera;
         [SerializeField] private AudioClip heartbeatClip;
@@ -79,23 +79,18 @@ namespace Game.Presentation
         /// <summary>How much CameraLookRunner should narrow its FOV target while critical.</summary>
         public float NarrowedFovDelta => narrowedFovDelta;
 
-        /// <summary>Exposed read-only so a test/editor harness can drive this Runner's own OrganManager/Bank in Play mode.</summary>
+        /// <summary>Exposed read-only so a test/editor harness can drive the shared OrganManager/Bank in Play mode.</summary>
         public OrganManager OrganManager => organManager;
 
-        /// <summary>Exposed read-only so a test/editor harness can drive this Runner's own OrganManager/Bank in Play mode.</summary>
+        /// <summary>Exposed read-only so a test/editor harness can drive the shared OrganManager/Bank in Play mode.</summary>
         public Bank Bank => bank;
 
         private void Awake()
         {
-            GameConfig config = configProvider != null ? configProvider.Config : null;
-            if (config == null)
+            if (configProvider == null || configProvider.Config == null)
             {
                 runtimeConfig = ScriptableObject.CreateInstance<GameConfig>();
-                config = runtimeConfig;
             }
-
-            bank = new Bank(config);
-            organManager = new OrganManager(organs, bank);
 
             audioSource = GetComponent<AudioSource>();
             audioSource.clip = heartbeatClip;
@@ -130,6 +125,27 @@ namespace Game.Presentation
                 cinemachineRestPosition = cinemachineCamera.transform.localPosition;
                 smoothedJitterBase = cinemachineRestPosition;
             }
+        }
+
+        private void Start()
+        {
+            // Resolved in Start (not Awake): EconomyRunner.Awake sets Economy and
+            // component Awake order is undefined, same reasoning as
+            // BlackjackLoopRunner/OrganSaleRunner reading it after the fact.
+            if (economyRunner == null)
+            {
+                economyRunner = FindAnyObjectByType<EconomyRunner>();
+            }
+
+            if (economyRunner == null || economyRunner.Economy == null)
+            {
+                Debug.LogError($"{nameof(CriticalStateRunner)}: Sahnenin EconomyRunner bileşeni bulunamadı.", this);
+                enabled = false;
+                return;
+            }
+
+            bank = economyRunner.Economy.MoneyBank;
+            organManager = economyRunner.Economy.OrganManager;
         }
 
         private bool forceCritical;

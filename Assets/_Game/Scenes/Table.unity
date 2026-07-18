@@ -8535,7 +8535,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game::Game.Economy.EconomyRunner
   configProvider: {fileID: 1828241800}
-  slowerRamp: 0
+  organs:
+  - {fileID: 11400000, guid: 5d64bc3bb01ef0049a4b3f7d614ffd03, type: 2}
+  - {fileID: 11400000, guid: a6727b3c147ff4348b201b2dbd757140, type: 2}
+  - {fileID: 11400000, guid: 0a2278945a4935040a73a6639d705060, type: 2}
+  - {fileID: 11400000, guid: 9c6deb6174f99a043ba12daa3faa70df, type: 2}
+  - {fileID: 11400000, guid: e6212461d66d678438112f6b75cab082, type: 2}
+  - {fileID: 11400000, guid: 7ecf02a002130ee439c4042d2cdc7a53, type: 2}
+  - {fileID: 11400000, guid: aa0debba92ad8374f97ff230665dcdc8, type: 2}
+  - {fileID: 11400000, guid: b87e083acb6042944ab6deaa5eefae50, type: 2}
+  - {fileID: 11400000, guid: 061f27cf09bd31248a9ab61eb650f83d, type: 2}
 --- !u!4 &1294278535
 Transform:
   m_ObjectHideFlags: 0
@@ -11918,7 +11927,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game::Game.Organs.OrganSaleRunner
   configProvider: {fileID: 1828241800}
   flowRunner: {fileID: 620165279}
-  economyRunner: {fileID: 0}
+  economyRunner: {fileID: 1294278534}
   organs:
   - {fileID: 11400000, guid: 5d64bc3bb01ef0049a4b3f7d614ffd03, type: 2}
   - {fileID: 11400000, guid: a6727b3c147ff4348b201b2dbd757140, type: 2}
@@ -12056,16 +12065,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game::Game.Presentation.CriticalStateRunner
   configProvider: {fileID: 1828241800}
-  organs:
-  - {fileID: 11400000, guid: 5d64bc3bb01ef0049a4b3f7d614ffd03, type: 2}
-  - {fileID: 11400000, guid: 061f27cf09bd31248a9ab61eb650f83d, type: 2}
-  - {fileID: 11400000, guid: 0a2278945a4935040a73a6639d705060, type: 2}
-  - {fileID: 11400000, guid: 9c6deb6174f99a043ba12daa3faa70df, type: 2}
-  - {fileID: 11400000, guid: 7ecf02a002130ee439c4042d2cdc7a53, type: 2}
-  - {fileID: 11400000, guid: b87e083acb6042944ab6deaa5eefae50, type: 2}
-  - {fileID: 11400000, guid: aa0debba92ad8374f97ff230665dcdc8, type: 2}
-  - {fileID: 11400000, guid: a6727b3c147ff4348b201b2dbd757140, type: 2}
-  - {fileID: 11400000, guid: e6212461d66d678438112f6b75cab082, type: 2}
+  economyRunner: {fileID: 1294278534}
   globalVolume: {fileID: 2031640785}
   cinemachineCamera: {fileID: 1690157538}
   heartbeatClip: {fileID: 8300000, guid: e0626ba865f8e84479299b6c73bb347a, type: 3}

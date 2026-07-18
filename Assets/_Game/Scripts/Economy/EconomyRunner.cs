@@ -1,4 +1,5 @@
 using Game.Core;
+using Game.Data;
 using UnityEngine;
 
 namespace Game.Economy
@@ -8,13 +9,17 @@ namespace Game.Economy
     /// longer subscribes to GameFlow.StateChanged: BlackjackLoop is the single
     /// deterministic conductor (GDD §08) and drives the per-hand economy calls
     /// (BeginHand on BetCheck, LockBet on Deal, AdvanceToNextHand on NextHand).
-    /// This component only owns the EconomyController instance.
+    /// This component owns the EconomyController instance — including its single
+    /// shared OrganManager, built from the organs assigned here — so OrganSaleRunner,
+    /// CriticalStateRunner and anything else in the scene that needs organ state
+    /// read/sell through EconomyController.OrganManager instead of building
+    /// their own. Böbrek II's slower ramp is no longer a manual Inspector flag:
+    /// EconomyController flips it itself the moment that organ is actually sold.
     /// </summary>
     public class EconomyRunner : MonoBehaviour
     {
         [SerializeField] private GameConfigProvider configProvider;
-        [Tooltip("Böbrek II buff: taban bahis her el yerine her 2 elde bir yükselir (GDD §05).")]
-        [SerializeField] private bool slowerRamp;
+        [SerializeField] private OrganData[] organs;
 
         public EconomyController Economy { get; private set; }
 
@@ -26,7 +31,7 @@ namespace Game.Economy
                 return;
             }
 
-            Economy = new EconomyController(configProvider.Config, slowerRamp);
+            Economy = new EconomyController(configProvider.Config, organs);
             Debug.Log($"Economy hazır — para={Economy.Balance}, taban bahis={Economy.CurrentBaseBet}");
         }
     }

@@ -9,6 +9,11 @@ namespace Game.Core
         private readonly GameFlow flow;
         private readonly EconomyController economy;
         private readonly Deck deck;
+
+        // Retained for the constructor signature (existing callers/tests pass
+        // GameConfig.decisionTime here), but no longer read directly — each hand
+        // now sources its decision time from economy.CurrentDecisionTime instead,
+        // so a sold Lung's timer debuff/buff (GDD §05) takes effect immediately.
         private readonly float decisionTime;
 
         private PlayerTurnController playerTurn;
@@ -156,7 +161,7 @@ namespace Game.Core
             DealToPlayer();
             DealToDealer(false);
 
-            playerTurn = new PlayerTurnController(PlayerHand, decisionTime);
+            playerTurn = new PlayerTurnController(PlayerHand, economy.CurrentDecisionTime);
             playerTurn.TurnEnded += _ => EndPlayerTurn();
 
         }

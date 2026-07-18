@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Game.Cards;
 using Game.Data;
 using Game.Economy;
@@ -9,6 +10,7 @@ namespace Game.Tests.EditMode
     public class EconomyControllerTests
     {
         private GameConfig config;
+        private readonly List<OrganData> createdOrgans = new();
 
         [SetUp]
         public void SetUp()
@@ -20,6 +22,31 @@ namespace Game.Tests.EditMode
         public void TearDown()
         {
             Object.DestroyImmediate(config);
+
+            foreach (var organ in createdOrgans)
+            {
+                Object.DestroyImmediate(organ);
+            }
+
+            createdOrgans.Clear();
+        }
+
+        private OrganData Organ(
+            string id,
+            OrganDebuffType debuffType = OrganDebuffType.None,
+            float debuffStrength = 0f,
+            OrganBuffType buffType = OrganBuffType.None,
+            float buffStrength = 0f)
+        {
+            var organ = ScriptableObject.CreateInstance<OrganData>();
+            organ.id = id;
+            organ.dollarValue = 1000;
+            organ.debuffType = debuffType;
+            organ.debuffStrength = debuffStrength;
+            organ.buffType = buffType;
+            organ.buffStrength = buffStrength;
+            createdOrgans.Add(organ);
+            return organ;
         }
 
         private static Hand HandOf(params (Suit suit, Rank rank)[] cardSpecs)
@@ -183,6 +210,64 @@ namespace Game.Tests.EditMode
             // Hand 2 selector now floors at the higher base bet.
             BetSelector selector = economy.BeginHand();
             Assert.AreEqual(1000, selector.Current);
+        }
+
+        // --- Shared OrganManager / permanent-effect wiring (issue 60 follow-up) ---
+
+        [Test]
+        public void SoldOrgan_FeedsEffectStack_BleedsBankOnNextSettle()
+        {
+            var liver = Organ("liver", OrganDebuffType.CashBleedPerHand, 600f);
+            var economy = new EconomyController(config, new[] { liver });
+
+            economy.OrganManager.Sell(liver);   // +1000 dollarValue -> balance 2000
+            Assert.AreEqual(2000, economy.Balance);
+
+            economy.BeginHand();   // locked = 700
+            economy.SettleHand(
+                HandOf((Suit.Spades, Rank.Ten), (Suit.Hearts, Rank.Nine)),
+                DealerTwenty());   // player loses -700, then liver bleeds -600
+
+            Assert.AreEqual(700, economy.Balance);
+        }
+
+        [Test]
+        public void SoldLung_LowersCurrentDecisionTime()
+        {
+            var lung = Organ("lung", OrganDebuffType.ReducedDecisionTime, 5f);
+            var economy = new EconomyController(config, new[] { lung });
+
+            Assert.AreEqual(config.decisionTime, economy.CurrentDecisionTime);
+
+            economy.OrganManager.Sell(lung);
+
+            Assert.AreEqual(config.decisionTime - 5f, economy.CurrentDecisionTime);
+        }
+
+        [Test]
+        public void SoldKidneyTwo_SlowsBaseBetRamp()
+        {
+            var kidneyTwo = Organ("kidney_ii", buffType: OrganBuffType.SlowerBetRamp);
+            var economy = new EconomyController(config, new[] { kidneyTwo });
+
+            economy.OrganManager.Sell(kidneyTwo);
+
+            economy.AdvanceToNextHand();   // hand 2 — slowed, no rise yet
+            Assert.AreEqual(700, economy.CurrentBaseBet);
+
+            economy.AdvanceToNextHand();   // hand 3 — rises
+            Assert.AreEqual(1000, economy.CurrentBaseBet);
+        }
+
+        [Test]
+        public void OrganManager_IsSharedSingleInstance_ReflectsSalesImmediately()
+        {
+            var spleen = Organ("spleen");
+            var economy = new EconomyController(config, new[] { spleen });
+
+            Assert.IsFalse(economy.OrganManager.IsSold(spleen));
+            economy.OrganManager.Sell(spleen);
+            Assert.IsTrue(economy.OrganManager.IsSold(spleen));
         }
     }
 }
