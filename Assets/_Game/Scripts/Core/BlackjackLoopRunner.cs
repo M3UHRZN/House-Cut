@@ -66,6 +66,10 @@ namespace Game.Core
             {
                 LowerBet();
             }
+            else if (Input.GetKeyDown(KeyCode.D))
+            {
+                UseDeferment();
+            }
         }
 
         public void ConfirmBet() => loop?.ConfirmBet();
@@ -89,6 +93,8 @@ namespace Game.Core
                 Debug.Log($"Bahis: ${loop.CurrentBet}");
             }
         }
+
+        public void UseDeferment() => loop?.UseDeferment();
 
         private void OnCardDealt(Card card, bool isDealer, bool faceUp)
         {

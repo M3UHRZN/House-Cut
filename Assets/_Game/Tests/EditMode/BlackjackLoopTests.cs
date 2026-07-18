@@ -84,6 +84,25 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(800, economy.LockedBet);
         }
 
+        [Test]
+        public void UseDeferment_InLoop_SkipsNextBaseBetRamp()
+        {
+            var economy = new EconomyController(config);
+            var loop = new BlackjackLoop(new GameFlow(), economy, new Deck(seed: 42), config.decisionTime);
+
+            loop.Begin();
+            economy.SettleHand(Blackjack(), DealerNineteen());   // player blackjack grants token
+            Assert.IsTrue(economy.HasDeferment);
+
+            loop.UseDeferment();
+            Assert.IsFalse(economy.HasDeferment);
+
+            Assert.IsTrue(loop.ConfirmBet());
+            loop.Stand();
+            Assert.IsTrue(loop.AdvanceToNextHand());
+            Assert.AreEqual(700, economy.CurrentBaseBet);   // ramp skipped
+        }
+
         private static Hand HandOf(params (Suit suit, Rank rank)[] cardSpecs)
         {
             var hand = new Hand();

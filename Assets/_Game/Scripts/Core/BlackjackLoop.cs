@@ -54,6 +54,14 @@ namespace Game.Core
             }
         }
 
+        public void UseDeferment()
+        {
+            if (State == GameState.BetCheck)
+            {
+                economy.UseDeferment();
+            }
+        }
+
         public bool ConfirmBet()
         {
             if (State != GameState.BetCheck)
