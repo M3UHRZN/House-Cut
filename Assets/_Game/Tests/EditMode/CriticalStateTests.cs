@@ -124,7 +124,7 @@ namespace Game.Tests.EditMode
             var manager = new OrganManager(organs, bank);
 
             manager.Sell(spleen);
-            bank.Deposit(300); // below the lowered 0.5x350 threshold, 0 sellable organs remain
+            bank.Deposit(290); // below the lowered 0.5x350 threshold (deposit 290 + 50 from spleen = 340 < 350), 0 sellable organs remain
 
             Assert.IsTrue(manager.IsCriticalState(MinBet));
         }

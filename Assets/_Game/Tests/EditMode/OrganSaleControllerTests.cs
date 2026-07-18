@@ -24,8 +24,8 @@ namespace Game.Tests.EditMode
             config.startMoney = 100;
 
             ear = CreateOrgan("ear", 500);
-            spleen = CreateOrgan("spleen", 1000, OrganDebuffType.WorseSaleRate);
-            kidneyI = CreateOrgan("kidney_i", 1000, OrganDebuffType.MinorVignette, OrganBuffType.BetterSaleRate);
+            spleen = CreateOrgan("spleen", 1000, OrganDebuffType.WorseSaleRate, OrganBuffType.None, 300f);
+            kidneyI = CreateOrgan("kidney_i", 1000, OrganDebuffType.MinorVignette, OrganBuffType.BetterSaleRate, 0f, 0.2f);
             heart = CreateOrgan("heart", 5000, OrganDebuffType.HeartEnd);
 
             bank = new Bank(config);
@@ -131,13 +131,17 @@ namespace Game.Tests.EditMode
             string id,
             int dollarValue,
             OrganDebuffType debuffType = OrganDebuffType.None,
-            OrganBuffType buffType = OrganBuffType.None)
+            OrganBuffType buffType = OrganBuffType.None,
+            float debuffStrength = 0f,
+            float buffStrength = 0f)
         {
             var organ = ScriptableObject.CreateInstance<OrganData>();
             organ.id = id;
             organ.dollarValue = dollarValue;
             organ.debuffType = debuffType;
             organ.buffType = buffType;
+            organ.debuffStrength = debuffStrength;
+            organ.buffStrength = buffStrength;
             return organ;
         }
     }
