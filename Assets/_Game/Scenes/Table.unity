@@ -3495,7 +3495,7 @@ Transform:
   m_GameObject: {fileID: 446704706}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -2.38, y: 1.28, z: -0.523}
+  m_LocalPosition: {x: -2.38, y: 1.28, z: -0.233}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9368,7 +9368,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 82.73261
+  field of view: 60
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -9394,8 +9394,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1449645741}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.0002907832, y: 0.97097987, z: -0.2391585, w: -0.0011682996}
-  m_LocalPosition: {x: -2.5964725, y: 2.2435057, z: 1.4286239}
+  m_LocalRotation: {x: 0.0001287491, y: 0.99975973, z: -0.020997474, w: 0.006294536}
+  m_LocalPosition: {x: -2.8076901, y: 2.15458, z: 1.9223913}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9750,7 +9750,7 @@ MonoBehaviour:
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 82.73261
+    FieldOfView: 60
     OrthographicSize: 5
     NearClipPlane: 0.3
     FarClipPlane: 1000
@@ -9777,8 +9777,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1690157537}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.0002907832, y: 0.97097987, z: -0.2391585, w: -0.0011682996}
-  m_LocalPosition: {x: -2.5964725, y: 2.2435057, z: 1.4286239}
+  m_LocalRotation: {x: 0.0001287491, y: 0.99975973, z: -0.020997474, w: 0.006294536}
+  m_LocalPosition: {x: -2.8076901, y: 2.15458, z: 1.9223913}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12049,7 +12049,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdec381cf2f109b43a4fb6461087f79e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game::Game.Presentation.CriticalStateRunner
-  configProvider: {fileID: 0}
+  configProvider: {fileID: 1828241800}
   organs:
   - {fileID: 11400000, guid: 5d64bc3bb01ef0049a4b3f7d614ffd03, type: 2}
   - {fileID: 11400000, guid: 061f27cf09bd31248a9ab61eb650f83d, type: 2}
@@ -12071,9 +12071,9 @@ MonoBehaviour:
   criticalChromaticAberrationIntensity: 0.6
   blendSpeed: 3
   periodicShakeEnabled: 1
-  periodicShakeInterval: 2
-  periodicShakeDuration: 3
-  periodicShakeAmplitude: 0.5
+  periodicShakeInterval: 1.58
+  periodicShakeDuration: 2.5
+  periodicShakeAmplitude: 0.08
 --- !u!82 &2082679534
 AudioSource:
   m_ObjectHideFlags: 0
