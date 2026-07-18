@@ -116,5 +116,64 @@ namespace Game.Tests.EditMode
                 Assert.IsNotEmpty(allowed, $"{state} has no outgoing transitions — dead end");
             }
         }
+
+        [Test]
+        public void TryTransition_ToDisallowedState_KeepsSignalReady()
+        {
+            // SignalReady means "this state is done, ready to leave" — it is
+            // target-agnostic. A rejected attempt at an invalid target must not
+            // consume it, since the state itself hasn't changed.
+            var flow = new GameFlow();
+            flow.SignalTransitionReady();
+
+            bool rejected = flow.TryTransition(GameState.DealerTurn);
+            Assert.IsFalse(rejected);
+            Assert.IsTrue(flow.SignalReady, "a rejected transition to a disallowed target must not consume the signal");
+
+            bool accepted = flow.TryTransition(GameState.BetCheck);
+            Assert.IsTrue(accepted, "the original signal should still allow a valid transition afterwards");
+            Assert.AreEqual(GameState.BetCheck, flow.CurrentState);
+        }
+
+        [Test]
+        public void FullHandLoop_WalksEveryStateBackToIntro()
+        {
+            var flow = new GameFlow();
+            var visited = new List<GameState> { flow.CurrentState };
+
+            GameState[] path =
+            {
+                GameState.BetCheck,
+                GameState.Deal,
+                GameState.PlayerTurn,
+                GameState.DealerTurn,
+                GameState.Resolve,
+                GameState.NextHand,
+                GameState.BetCheck,
+                GameState.OrganSale,
+                GameState.Extraction,
+                GameState.GameOver,
+                GameState.Intro,
+            };
+
+            foreach (var next in path)
+            {
+                flow.SignalTransitionReady();
+                bool moved = flow.TryTransition(next);
+
+                Assert.IsTrue(moved, $"expected to reach {next} from {visited[^1]}");
+                visited.Add(next);
+            }
+
+            Assert.AreEqual(GameState.Intro, flow.CurrentState);
+            CollectionAssert.AreEqual(
+                new[]
+                {
+                    GameState.Intro, GameState.BetCheck, GameState.Deal, GameState.PlayerTurn,
+                    GameState.DealerTurn, GameState.Resolve, GameState.NextHand, GameState.BetCheck,
+                    GameState.OrganSale, GameState.Extraction, GameState.GameOver, GameState.Intro,
+                },
+                visited);
+        }
     }
 }
