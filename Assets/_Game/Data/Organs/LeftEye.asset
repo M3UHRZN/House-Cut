@@ -20,6 +20,10 @@ MonoBehaviour:
   debuffStrength: 0.3
   buffType: 6
   buffStrength: 1
+  debuffDescription: "Ekran\u0131n sol %30'u karanl\u0131k maske; hafif \xE7ift g\xF6r\xFCnt\xFC
+    ve daha dar g\xF6r\xFC\u015F."
+  buffDescription: "Yabanc\u0131'n\u0131n kapal\u0131 kart\u0131 her elin ilk saniyesinde
+    bir an a\xE7\u0131k g\xF6sterilir."
   mesh: {fileID: 0}
   icon: {fileID: 0}
   extractionSfx: {fileID: 0}

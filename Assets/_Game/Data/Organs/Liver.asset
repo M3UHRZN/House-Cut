@@ -20,6 +20,10 @@ MonoBehaviour:
   debuffStrength: 600
   buffType: 8
   buffStrength: 800
+  debuffDescription: "Kirli sar\u0131 renk ayr\u0131\u015Fmas\u0131; her el sonu
+    \u2212$600."
+  buffDescription: "Rejenerasyon: her galibiyette +$800 nakit \u2014 bedeni paraya
+    \xE7eviren tek buff."
   mesh: {fileID: 0}
   icon: {fileID: 0}
   extractionSfx: {fileID: 0}

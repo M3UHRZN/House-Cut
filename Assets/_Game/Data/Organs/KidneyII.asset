@@ -20,6 +20,10 @@ MonoBehaviour:
   debuffStrength: 400
   buffType: 4
   buffStrength: 2
+  debuffDescription: "Her el sonu \u2212$400 (kanama paray\u0131 s\u0131zd\u0131r\u0131r);
+    ikinci b\xF6brek i\xE7in a\u011F\u0131r bedel."
+  buffDescription: "Min bahis art\u0131\u015F\u0131 yava\u015Flar: taban her el yerine
+    her 2 elde bir y\xFCkselir."
   mesh: {fileID: 0}
   icon: {fileID: 0}
   extractionSfx: {fileID: 0}

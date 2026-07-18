@@ -20,6 +20,10 @@ MonoBehaviour:
   debuffStrength: 1
   buffType: 1
   buffStrength: 1
+  debuffDescription: "Ses tek kanala d\xFC\u015Fer; high-cut ve hafif tinnitus. Diyalog
+    altyaz\u0131s\u0131 a\xE7\u0131k kal\u0131r."
+  buffDescription: "Yabanc\u0131'n\u0131n kapal\u0131 kart\u0131n\u0131n y\xFCksek
+    mi (7+) d\xFC\u015F\xFCk m\xFC oldu\u011Funa dair belirsiz bir ses ipucu duyars\u0131n."
   mesh: {fileID: 0}
   icon: {fileID: 0}
   extractionSfx: {fileID: 0}

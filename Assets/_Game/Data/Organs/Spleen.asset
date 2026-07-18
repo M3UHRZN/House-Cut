@@ -20,6 +20,10 @@ MonoBehaviour:
   debuffStrength: 300
   buffType: 2
   buffStrength: 1
+  debuffDescription: "Sonraki her organ sat\u0131\u015F\u0131 \u2212$300 daha az
+    getirir (k\xF6t\xFC kur); daha uzun kan vinyeti."
+  buffDescription: "Kritik H\xE2l e\u015Fi\u011Fi d\xFC\u015Fer (daha d\xFC\u015F\xFCk
+    parada tetiklenir); iflasa daha dayan\u0131kl\u0131s\u0131n."
   mesh: {fileID: 0}
   icon: {fileID: 0}
   extractionSfx: {fileID: 0}
