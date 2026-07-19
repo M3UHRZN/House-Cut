@@ -42,6 +42,15 @@ namespace Game.Core
         /// <summary>HUD için: el çözüldüğünde net para değişimini (delta) yayınlar.</summary>
         public event System.Action<int> HandSettled;
 
+        /// <summary>Ses için: bir kart görsel olarak dağıtılırken (mantıksal çekilme anında değil) tetiklenir.</summary>
+        public event System.Action CardDealtVisual;
+
+        /// <summary>Ses için: kasa kapalı kartı görsel olarak çevrilirken tetiklenir.</summary>
+        public event System.Action HoleCardFlipped;
+
+        /// <summary>Ses için: oyuncu batınca tetiklenir (loop.PlayerBusted'ın re-broadcast'i).</summary>
+        public event System.Action PlayerBusted;
+
         private void Awake()
         {
             if (configProvider == null || configProvider.Config == null || flowRunner == null || economyRunner == null ||
@@ -66,6 +75,7 @@ namespace Game.Core
             loop.CardDealt += OnCardDealt;
             loop.DealerHoleCardRevealed += OnDealerHoleCardRevealed;
             loop.HandSettled += OnHandSettled;
+            loop.PlayerBusted += OnPlayerBusted;
 
             yield return null;
             loop.Begin();
@@ -178,6 +188,8 @@ namespace Game.Core
             return "BERABERE";
         }
 
+        private void OnPlayerBusted() => PlayerBusted?.Invoke();
+
         private void OnHandSettled(int delta)
         {
             // Kart dağıtma/çevirme animasyonları biterken sonucu göstermeyelim —
@@ -209,8 +221,11 @@ namespace Game.Core
             views.Add(view);
 
             animQueue.Enqueue(() =>
-                view.AnimateDealFrom(spawnPosition, targetPosition, targetRotation, dealDuration, dealEase,
-                    () => view.SetCard(card, faceUp)));
+            {
+                CardDealtVisual?.Invoke();
+                return view.AnimateDealFrom(spawnPosition, targetPosition, targetRotation, dealDuration, dealEase,
+                    () => view.SetCard(card, faceUp));
+            });
         }
 
         private void OnDealerHoleCardRevealed(Card card)
@@ -218,7 +233,11 @@ namespace Game.Core
             if (dealerCards.Count > 1)
             {
                 CardVisual holeCard = dealerCards[1];
-                animQueue.Enqueue(() => holeCard.FlipTo(true, flipDuration, flipEase));
+                animQueue.Enqueue(() =>
+                {
+                    HoleCardFlipped?.Invoke();
+                    return holeCard.FlipTo(true, flipDuration, flipEase);
+                });
             }
         }
 
@@ -337,6 +356,7 @@ namespace Game.Core
             loop.CardDealt -= OnCardDealt;
             loop.DealerHoleCardRevealed -= OnDealerHoleCardRevealed;
             loop.HandSettled -= OnHandSettled;
+            loop.PlayerBusted -= OnPlayerBusted;
         }
 
         private void OnDrawGizmos()

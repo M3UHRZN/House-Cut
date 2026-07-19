@@ -49574,6 +49574,64 @@ MonoBehaviour:
   placeDropHeight: 0.6
   placeDuration: 0.5
   placeEase: 27
+--- !u!1 &1925923494
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1925923496}
+  - component: {fileID: 1925923495}
+  m_Layer: 0
+  m_Name: AudioDirector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1925923495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1925923494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 310817eb58883d040b26424f671628de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game::Game.Audio.AudioDirector
+  sfxGroup: {fileID: 0}
+  musicGroup: {fileID: 0}
+  ambientGroup: {fileID: 0}
+  loopRunner: {fileID: 1294278533}
+  flowRunner: {fileID: 620165279}
+  cardDeal: {fileID: 11400000, guid: c744f5bb1b8cfb743a99f15adb54114f, type: 2}
+  cardFlip: {fileID: 11400000, guid: d16e3355c4f9cc947a816dd8c097cea6, type: 2}
+  win: {fileID: 11400000, guid: 1e5da277c48a9d04bb614a6262d6c28c, type: 2}
+  lose: {fileID: 11400000, guid: 5ee0657bae470a546ad4f6f0d7e5d902, type: 2}
+  push: {fileID: 11400000, guid: d55272247ce1ae34a92b32b74f7ebef4, type: 2}
+  bust: {fileID: 11400000, guid: d9d55d5b1fbbaf840a078585ead6b2fc, type: 2}
+  gameOver: {fileID: 11400000, guid: 1ca4ccac743d70049836c1b418aa0374, type: 2}
+  ambientLoop: {fileID: 11400000, guid: f3b6edf5fd9d0aa4d966cd7006f59cc1, type: 2}
+  music: {fileID: 0}
+--- !u!4 &1925923496
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1925923494}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!28 &1928014624
 Texture2D:
   m_ObjectHideFlags: 0
@@ -55717,6 +55775,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1670318277}
+  - {fileID: 1925923496}
   - {fileID: 1884635454}
   - {fileID: 384071340}
   - {fileID: 1198226465}

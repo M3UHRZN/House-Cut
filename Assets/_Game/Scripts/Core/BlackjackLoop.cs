@@ -27,6 +27,9 @@ namespace Game.Core
         public event Action<Card> DealerHoleCardRevealed;
         public event Action<int> HandSettled;
 
+        /// <summary>Ses için: oyuncu batınca (kartlar toplanmadan önce) tetiklenir.</summary>
+        public event Action PlayerBusted;
+
         public BlackjackLoop(GameFlow flow, EconomyController economy, Deck deck, float decisionTime)
         {
             this.flow = flow;
@@ -201,6 +204,11 @@ namespace Game.Core
         {
             if (State == GameState.PlayerTurn)
             {
+                if (PlayerHand.IsBust)
+                {
+                    PlayerBusted?.Invoke();
+                }
+
                 Transition(GameState.DealerTurn);
             }
         }
