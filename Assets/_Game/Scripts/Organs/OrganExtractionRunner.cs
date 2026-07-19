@@ -13,9 +13,11 @@ namespace Game.Organs
     /// (fired once per sold organ during OrganSaleRunner.Confirm, before Extraction is
     /// entered) to queue organs, then on GameState.Extraction spawns each organ's prefab
     /// at a spawn anchor, tweens it to a drop point, and releases its Rigidbody so it
-    /// falls onto the organ bench. When the queue drains it calls
-    /// BlackjackLoop.CompleteExtraction() so the flow can proceed (the "flow waits for
-    /// animation" rule). The Heart never fires OrganSold, so it is not handled here.
+    /// falls onto the organ bench. While each organ is in flight it locks
+    /// CameraLookRunner onto it (look-at), releasing the lock once the queue drains.
+    /// When the queue drains it calls BlackjackLoop.CompleteExtraction() so the flow
+    /// can proceed (the "flow waits for animation" rule). The Heart never fires
+    /// OrganSold, so it is not handled here.
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
     public class OrganExtractionRunner : MonoBehaviour
@@ -23,6 +25,8 @@ namespace Game.Organs
         [SerializeField] private GameFlowRunner flowRunner;
         [SerializeField] private EconomyRunner economyRunner;
         [SerializeField] private BlackjackLoopRunner loopRunner;
+        [Tooltip("Atanırsa, uçuş boyunca kamera bu spawn edilen organa kilitlenir.")]
+        [SerializeField] private CameraLookRunner cameraLookRunner;
 
         [Header("Anchors")]
         [Tooltip("Organın belirdiği nokta (istediğin yere koy).")]
@@ -60,6 +64,11 @@ namespace Game.Organs
             if (loopRunner == null)
             {
                 loopRunner = FindAnyObjectByType<BlackjackLoopRunner>();
+            }
+
+            if (cameraLookRunner == null)
+            {
+                cameraLookRunner = FindAnyObjectByType<CameraLookRunner>();
             }
 
             if (economyRunner == null || economyRunner.Economy == null || flowRunner == null || flowRunner.Flow == null)
@@ -110,6 +119,12 @@ namespace Game.Organs
                 }
             }
 
+            // Release the camera lock before handing the flow back.
+            if (cameraLookRunner != null)
+            {
+                cameraLookRunner.SetExtractionTarget(null);
+            }
+
             // Animation finished → let the game flow leave Extraction.
             if (loopRunner != null && loopRunner.Loop != null)
             {
@@ -136,6 +151,11 @@ namespace Game.Organs
             }
 
             GameObject instance = Instantiate(organ.extractionPrefab, spawnAnchor.position, spawnAnchor.rotation);
+
+            if (cameraLookRunner != null)
+            {
+                cameraLookRunner.SetExtractionTarget(instance.transform);
+            }
 
             // Hand-animate while kinematic, even if the prefab author forgot to tick Is Kinematic.
             Rigidbody body = instance.GetComponent<Rigidbody>();

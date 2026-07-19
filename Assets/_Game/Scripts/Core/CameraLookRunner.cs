@@ -47,14 +47,27 @@ namespace Game.Core
         [Tooltip("Opsiyonel — Kritik Hâl'in FOV daraltmasıyla birleştirmek için.")]
         [SerializeField] private CriticalStateRunner criticalStateRunner;
 
+        [Header("Organ Çıkarma Kilidi")]
+        [Tooltip("Organ uçuşunu takip ederken dönüşün ne kadar hızlı yumuşayacağı.")]
+        [SerializeField] private float extractionLookSmoothing = 8f;
+
         private Quaternion restRotation;
         private CameraLookController controller;
         private float currentYaw;
         private float currentPitch;
         private float restFieldOfView;
         private float currentFieldOfView;
+        private Transform extractionTarget;
 
         public CameraLookController Controller => controller;
+
+        /// <summary>
+        /// OrganExtractionRunner çağırır: null değilse kamera serbest bakışı/rest
+        /// pozisyonunu yok sayıp bu hedefe kilitlenir (uçan/düşen organı takip eder).
+        /// null verilince normal davranışa (OrganSale/Extraction'da rest, aksi halde
+        /// serbest bakış) geri döner.
+        /// </summary>
+        public void SetExtractionTarget(Transform target) => extractionTarget = target;
 
         private void Awake()
         {
@@ -104,6 +117,7 @@ namespace Game.Core
             else
             {
                 LockCursor();
+                extractionTarget = null;
             }
         }
 
@@ -134,9 +148,29 @@ namespace Game.Core
             currentYaw = Mathf.Lerp(currentYaw, controller.Yaw, t);
             currentPitch = Mathf.Lerp(currentPitch, controller.Pitch, t);
 
-            transform.localRotation = restRotation * Quaternion.Euler(-currentPitch, currentYaw, 0f);
+            if (extractionTarget != null)
+            {
+                ApplyExtractionLook();
+            }
+            else
+            {
+                transform.localRotation = restRotation * Quaternion.Euler(-currentPitch, currentYaw, 0f);
+            }
 
             ApplyZoom(mouse);
+        }
+
+        private void ApplyExtractionLook()
+        {
+            Vector3 direction = extractionTarget.position - transform.position;
+            if (direction.sqrMagnitude < 0.0001f)
+            {
+                return;
+            }
+
+            Quaternion targetRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+            float lookT = 1f - Mathf.Exp(-extractionLookSmoothing * Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, lookT);
         }
 
         private void ApplyZoom(Mouse mouse)
