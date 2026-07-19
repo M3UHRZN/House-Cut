@@ -51,13 +51,13 @@ namespace Game.Editor
         [MenuItem("House Cut/Cards/Deal Preview Hand")]
         public static void DealPreviewHand()
         {
-            UnityEngine.Object.FindFirstObjectByType<BlackjackLoopRunner>()?.ConfirmBet();
+            UnityEngine.Object.FindAnyObjectByType<BlackjackLoopRunner>()?.ConfirmBet();
         }
 
         [MenuItem("House Cut/Cards/Stand Preview Hand")]
         public static void StandPreviewHand()
         {
-            UnityEngine.Object.FindFirstObjectByType<BlackjackLoopRunner>()?.Stand();
+            UnityEngine.Object.FindAnyObjectByType<BlackjackLoopRunner>()?.Stand();
         }
 
     }
