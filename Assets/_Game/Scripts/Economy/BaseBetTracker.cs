@@ -15,7 +15,7 @@ namespace Game.Economy
     {
         private readonly int minBet;
         private readonly int betRamp;
-        private readonly bool slowerRamp;
+        private bool slowerRamp;
 
         private int handsTowardsRamp;
         private bool deferNextRamp;
@@ -34,6 +34,16 @@ namespace Game.Economy
         public void DeferNextRamp()
         {
             deferNextRamp = true;
+        }
+
+        /// <summary>
+        /// Böbrek II buff (GDD §05, OrganBuffType.SlowerBetRamp): flips the ramp
+        /// to every-2-hands once that organ is sold mid-run. Idempotent/one-way —
+        /// the buff is permanent for the rest of the run once granted.
+        /// </summary>
+        public void SetSlowerRamp(bool value)
+        {
+            slowerRamp = value;
         }
 
         /// <summary>Advances to the next hand, raising the base bet per the ramp rules.</summary>

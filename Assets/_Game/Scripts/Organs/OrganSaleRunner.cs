@@ -10,13 +10,11 @@ namespace Game.Organs
 {
     /// <summary>
     /// Scene-visible host for the "beden defteri" (organ sale) screen — GDD
-    /// §04 Organ Satışı. Builds its own Bank/OrganManager/OrganSaleController
-    /// (zero-setup, same pattern as EconomyDemoHarness) since no scene-wide
-    /// EconomyRunner exists yet to plug into. Shows itself when GameFlow
-    /// enters OrganSale; SAT confirms the selection and drives GameFlow into
-    /// Extraction. Auto-triggering OrganSale from a real BetCheck shortfall is
-    /// out of scope here — that's future integration work, same seam
-    /// EconomyRunner already reserves on GameFlow.StateChanged.
+    /// §04 Organ Satışı. Reads the single shared OrganManager/Bank off
+    /// EconomyRunner.Economy — the same instance BlackjackLoop, CriticalStateRunner
+    /// and EffectStack/LungTimerEffect all observe — so a sale here is visible
+    /// everywhere else in the scene (GDD §08). Shows itself when GameFlow enters
+    /// OrganSale; SAT confirms the selection and drives GameFlow into Extraction.
     /// </summary>
     public class OrganSaleRunner : MonoBehaviour
     {
@@ -86,7 +84,7 @@ namespace Game.Organs
             }
 
             bank = economyRunner.Economy.MoneyBank;
-            OrganManager = new OrganManager(organs, bank);
+            OrganManager = economyRunner.Economy.OrganManager;
             Controller = new OrganSaleController(OrganManager, bank);
             RequiredBet = economyRunner.Economy.RequiredBet;
 

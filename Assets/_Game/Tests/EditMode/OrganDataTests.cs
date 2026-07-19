@@ -35,10 +35,18 @@ namespace Game.Tests.EditMode
         [Test]
         public void OrganAssets_MatchTheGddMatrix()
         {
+            // Spleen's buffStrength is 0.5, not the GDD-transcription placeholder 1
+            // every other not-yet-quantified buff uses: the GDD only describes
+            // LowerCriticalThreshold in prose ("Kritik Hâl eşiği düşer"), no exact
+            // number, but unlike Ear/Stomach/LeftEye's buffs this one IS wired up
+            // (OrganManager.IsCriticalState reads buffStrength as the threshold
+            // multiplier) — leaving it at 1 made the buff a no-op (multiplier
+            // unchanged from the no-Spleen default of 1). 0.5 halves the money
+            // trigger threshold, matching the buff's "more resistant" description.
             var expectedOrgans = new[]
             {
                 ("Ear", "ear", "Ear", 1000, OrganDebuffType.MonoAudio, 1f, OrganBuffType.DealerCardHint, 1f),
-                ("Spleen", "spleen", "Spleen", 1000, OrganDebuffType.WorseSaleRate, 300f, OrganBuffType.LowerCriticalThreshold, 1f),
+                ("Spleen", "spleen", "Spleen", 1000, OrganDebuffType.WorseSaleRate, 300f, OrganBuffType.LowerCriticalThreshold, 0.5f),
                 ("KidneyI", "kidney_i", "Kidney I", 1000, OrganDebuffType.MinorVignette, 1f, OrganBuffType.BetterSaleRate, 0.2f),
                 ("KidneyII", "kidney_ii", "Kidney II", 1000, OrganDebuffType.CashBleedPerHand, 400f, OrganBuffType.SlowerBetRamp, 2f),
                 ("Stomach", "stomach", "Stomach", 2000, OrganDebuffType.NauseaOnHit, 0.6f, OrganBuffType.ShowHandDistance, 1f),
