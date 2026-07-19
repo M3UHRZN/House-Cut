@@ -33,6 +33,11 @@ namespace Game.Organs
         [Header("Animation")]
         [SerializeField, Min(0f)] private float travelDuration = 0.6f;
         [SerializeField] private Ease travelEase = Ease.OutQuad;
+        [Tooltip("Spawn ile drop noktası arasındaki kavisin ne kadar yükseleceği (düz çizgi yerine fırlatılmış gibi görünmesi için).")]
+        [SerializeField, Min(0f)] private float arcHeight = 1.2f;
+        [Tooltip("Uçuş sırasında organın havada döneceği toplam açı aralığı (derece). Her eksen için ayrı rastgele bir değer seçilir.")]
+        [SerializeField, Min(0f)] private float minTumbleDegrees = 360f;
+        [SerializeField, Min(0f)] private float maxTumbleDegrees = 720f;
         [Tooltip("Bir organ düştükten sonra bir sonrakini spawnlamadan önceki bekleme.")]
         [SerializeField, Min(0f)] private float settleDelay = 0.4f;
 
@@ -139,12 +144,22 @@ namespace Game.Organs
                 body.isKinematic = true;
             }
 
-            Tween move = instance.transform
-                .DOMove(dropAnchor.position, travelDuration)
-                .SetEase(travelEase)
-                .SetLink(instance);
+            // A single lofted waypoint (path midpoint, raised by arcHeight) turns the
+            // straight-line DOMove into a thrown/lobbed arc instead of a robotic slide.
+            Vector3 midpoint = Vector3.Lerp(spawnAnchor.position, dropAnchor.position, 0.5f) + Vector3.up * arcHeight;
+            Vector3[] path = { midpoint, dropAnchor.position };
 
-            yield return move.WaitForCompletion();
+            Vector3 tumble = new Vector3(
+                Random.Range(minTumbleDegrees, maxTumbleDegrees) * (Random.value < 0.5f ? -1f : 1f),
+                Random.Range(minTumbleDegrees, maxTumbleDegrees) * (Random.value < 0.5f ? -1f : 1f),
+                Random.Range(minTumbleDegrees, maxTumbleDegrees) * (Random.value < 0.5f ? -1f : 1f));
+
+            Sequence flight = DOTween.Sequence();
+            flight.Join(instance.transform.DOPath(path, travelDuration, PathType.CatmullRom).SetEase(travelEase));
+            flight.Join(instance.transform.DORotate(tumble, travelDuration, RotateMode.FastBeyond360).SetEase(Ease.Linear));
+            flight.SetLink(instance);
+
+            yield return flight.WaitForCompletion();
 
             // Release to physics: it drops the last bit and lands on the bench collider.
             if (body != null)
