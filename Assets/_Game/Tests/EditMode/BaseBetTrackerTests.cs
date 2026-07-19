@@ -98,5 +98,35 @@ namespace Game.Tests.EditMode
 
             Assert.AreEqual(1000, tracker.Current);
         }
+
+        [Test]
+        public void HandNumber_StartsAtOne_AndIncrementsEachHand()
+        {
+            var tracker = new BaseBetTracker(config);
+
+            Assert.AreEqual(1, tracker.HandNumber);
+            tracker.AdvanceHand();
+            Assert.AreEqual(2, tracker.HandNumber);
+            tracker.AdvanceHand();
+            Assert.AreEqual(3, tracker.HandNumber);
+        }
+
+        [Test]
+        public void HandNumber_AdvancesEvenWhenRampIsDeferredOrSlowed()
+        {
+            // El sayısı bahis rampasından bağımsızdır: erteleme bahsi yükseltmese de
+            // el ilerler.
+            var deferred = new BaseBetTracker(config);
+            deferred.DeferNextRamp();
+            deferred.AdvanceHand();
+            Assert.AreEqual(700, deferred.Current);   // bahis sabit
+            Assert.AreEqual(2, deferred.HandNumber);  // el yine ilerledi
+
+            // Böbrek II (slowerRamp): bahis her 2 elde bir yükselse de el sayısı her el artar.
+            var slowed = new BaseBetTracker(config, slowerRamp: true);
+            slowed.AdvanceHand();
+            slowed.AdvanceHand();
+            Assert.AreEqual(3, slowed.HandNumber);
+        }
     }
 }

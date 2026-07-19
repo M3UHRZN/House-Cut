@@ -27,9 +27,9 @@ namespace Game.Core
         private readonly List<CardVisual> playerCards = new();
         private readonly List<CardVisual> dealerCards = new();
         private BlackjackLoop loop;
-        private string handResultMessage;
-        private Color handResultColor;
-        private bool isShowingHandResult;
+
+        /// <summary>HUD için: el çözüldüğünde net para değişimini (delta) yayınlar.</summary>
+        public event System.Action<int> HandSettled;
 
         private void Awake()
         {
@@ -112,6 +112,12 @@ namespace Game.Core
         public void Hit() => loop?.Hit();
         public void Stand() => loop?.Stand();
 
+        /// <summary>HUD için: bu elin güncel bahsi (BetCheck'te ok tuşlarıyla anlık değişir).</summary>
+        public int CurrentBet => loop?.CurrentBet ?? 0;
+
+        /// <summary>HUD için: akışın güncel durumu (bahis göstergesini bağlamak için).</summary>
+        public GameState State => loop?.State ?? GameState.Intro;
+
         public void RaiseBet()
         {
             loop?.RaiseBet();
@@ -149,13 +155,7 @@ namespace Game.Core
 
         private void OnHandSettled(int delta)
         {
-            handResultMessage = FormatHandResult(delta);
-            handResultColor = delta > 0
-                ? new Color(0.35f, 1f, 0.45f)
-                : delta < 0
-                    ? new Color(1f, 0.3f, 0.25f)
-                    : new Color(1f, 0.85f, 0.3f);
-            isShowingHandResult = true;
+            HandSettled?.Invoke(delta);
             StartCoroutine(AdvanceAfterResult());
         }
 
@@ -239,35 +239,8 @@ namespace Game.Core
         private IEnumerator AdvanceAfterResult()
         {
             yield return new WaitForSeconds(resultDisplaySeconds);
-            isShowingHandResult = false;
             ClearCards();
             loop?.AdvanceToNextHand();
-        }
-
-        private void OnGUI()
-        {
-            if (!isShowingHandResult)
-            {
-                return;
-            }
-
-            float width = Mathf.Min(620f, Screen.width * 0.7f);
-            float height = Mathf.Max(90f, Screen.height * 0.14f);
-            var panel = new Rect((Screen.width - width) * 0.5f, Screen.height * 0.12f, width, height);
-
-            Color previousColor = GUI.color;
-            GUI.color = new Color(0.02f, 0.015f, 0.01f, 0.88f);
-            GUI.Box(panel, GUIContent.none);
-            GUI.color = previousColor;
-
-            var style = new GUIStyle(GUI.skin.label)
-            {
-                alignment = TextAnchor.MiddleCenter,
-                fontSize = Mathf.Clamp(Mathf.RoundToInt(Screen.height * 0.055f), 28, 64),
-                fontStyle = FontStyle.Bold
-            };
-            style.normal.textColor = handResultColor;
-            GUI.Label(panel, handResultMessage, style);
         }
 
         private void ClearCards()

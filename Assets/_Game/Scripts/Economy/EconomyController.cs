@@ -34,6 +34,9 @@ namespace Game.Economy
         public int LockedBet => lockedBet;
         public bool HasDeferment => deferment.Has;
 
+        /// <summary>Kaçıncı el oynanıyor (ilk el = 1) — HUD'daki el sayacı (GDD §06).</summary>
+        public int HandNumber => baseBet.HandNumber;
+
         /// <summary>The base bet the player must be able to cover to keep playing.</summary>
         public int RequiredBet => baseBet.Current;
 
