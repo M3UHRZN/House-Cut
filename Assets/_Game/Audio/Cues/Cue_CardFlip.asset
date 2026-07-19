@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7aad306bfeaaeb541a470d264cd0a72e, type: 3}
   m_Name: Cue_CardFlip
   m_EditorClassIdentifier: Game::Game.Audio.AudioCue
-  clips: []
+  clips:
+  - {fileID: 8300000, guid: 25a5df41e704b6a4db5847d532e8f21d, type: 3}
+  - {fileID: 8300000, guid: edee964b1662d93498359f26dbd21d58, type: 3}
   volume: 1
   pitchRange: {x: 0.95, y: 1.05}

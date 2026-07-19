@@ -26,7 +26,6 @@ namespace Game.Audio
         [SerializeField] private AudioCue cardFlip;
         [SerializeField] private AudioCue win;
         [SerializeField] private AudioCue lose;
-        [SerializeField] private AudioCue push;
         [SerializeField] private AudioCue bust;
         [SerializeField] private AudioCue gameOver;
 
@@ -102,7 +101,8 @@ namespace Game.Audio
 
         private void OnHandSettled(int delta)
         {
-            AudioCue cue = delta > 0 ? win : delta < 0 ? lose : push;
+            // GDD §03.6: berabere yok — HandResolver her zaman kazan/kaybet döndürür (delta asla 0 değil).
+            AudioCue cue = delta > 0 ? win : lose;
             cue?.PlayOneShot(sfxSource);
         }
 
