@@ -51,5 +51,8 @@ namespace Game.Data
         public Sprite icon;
         public AudioClip extractionSfx;
         public ScriptableObject postProcessProfile;
+
+        [Tooltip("Organ satılınca sahnede spawn olan 3B prefab. Üzerinde Rigidbody (Is Kinematic AÇIK) + bir Collider bulunmalı; çıkarma animasyonu bittiğinde kinematik kapatılıp tezgaha düşer.")]
+        public GameObject extractionPrefab;
     }
 }
