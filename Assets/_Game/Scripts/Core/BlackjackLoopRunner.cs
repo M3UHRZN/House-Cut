@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using Game.Cards;
 using Game.Economy;
 using UnityEngine;
@@ -24,8 +25,18 @@ namespace Game.Core
         [SerializeField] private bool showCardGizmos = true;
         [SerializeField, Range(1, 10)] private int gizmoPreviewCardCount = 6;
 
+        [Header("Animation")]
+        [SerializeField] private DeckVisual deckVisual;
+        [SerializeField, Min(0f)] private float dealDuration = 0.35f;
+        [SerializeField, Min(0f)] private float flipDuration = 0.4f;
+        [SerializeField, Min(0f)] private float collectDuration = 0.3f;
+        [SerializeField] private Ease dealEase = Ease.OutQuad;
+        [SerializeField] private Ease flipEase = Ease.InOutQuad;
+        [SerializeField] private Ease collectEase = Ease.InQuad;
+
         private readonly List<CardVisual> playerCards = new();
         private readonly List<CardVisual> dealerCards = new();
+        private readonly AnimationQueue animQueue = new();
         private BlackjackLoop loop;
         private string handResultMessage;
         private Color handResultColor;
@@ -38,6 +49,11 @@ namespace Game.Core
             {
                 Debug.LogError($"{nameof(BlackjackLoopRunner)}: Config, akış, ekonomi, kart kataloğu ve Player/Dealer anchor atanmalı.", this);
                 enabled = false;
+            }
+
+            if (deckVisual == null)
+            {
+                Debug.LogWarning($"{nameof(BlackjackLoopRunner)}: DeckVisual atanmadı; kartlar deste animasyonu olmadan dağıtılacak.", this);
             }
         }
 
@@ -57,7 +73,10 @@ namespace Game.Core
 
         private void Update()
         {
-            loop?.Tick(Time.deltaTime);
+            if (animQueue.IsIdle)
+            {
+                loop?.Tick(Time.deltaTime);
+            }
 
             Keyboard keyboard = Keyboard.current;
             if (keyboard == null)
@@ -71,11 +90,17 @@ namespace Game.Core
             }
             else if (keyboard.hKey.wasPressedThisFrame)
             {
-                Hit();
+                if (animQueue.IsIdle)
+                {
+                    Hit();
+                }
             }
             else if (keyboard.spaceKey.wasPressedThisFrame)
             {
-                Stand();
+                if (animQueue.IsIdle)
+                {
+                    Stand();
+                }
             }
             else if (keyboard.upArrowKey.wasPressedThisFrame)
             {
@@ -132,6 +157,11 @@ namespace Game.Core
 
         private void OnHandSettled(int delta)
         {
+            animQueue.WhenIdle(() => ShowHandResult(delta));
+        }
+
+        private void ShowHandResult(int delta)
+        {
             handResultMessage = FormatHandResult(delta);
             handResultColor = delta > 0
                 ? new Color(0.35f, 1f, 0.45f)
@@ -144,24 +174,39 @@ namespace Game.Core
 
         private void OnCardDealt(Card card, bool isDealer, bool faceUp)
         {
+            bool isFirstCardOfHand = playerCards.Count == 0 && dealerCards.Count == 0;
+            if (isFirstCardOfHand && deckVisual != null)
+            {
+                animQueue.Enqueue(() => deckVisual.PlaceOnTable());
+            }
+
             List<CardVisual> views = isDealer ? dealerCards : playerCards;
-            CardVisual view = CreateCardView(card, views.Count, isDealer);
-            view.SetCard(card, faceUp);
+            Transform anchor = isDealer ? dealerCardAnchor : playerCardAnchor;
+            Vector3 targetPosition = CardPlacement.GetPosition(anchor, views.Count, cardSpacing);
+            Quaternion targetRotation = anchor.rotation;
+            Vector3 spawnPosition = deckVisual != null ? deckVisual.RestTopSpawnPosition : targetPosition;
+
+            CardVisual view = CreateCardView(card, isDealer, spawnPosition, targetRotation);
+            view.SetCard(card, false); // spawns face-down at the deck; revealed on arrival
             views.Add(view);
+
+            animQueue.Enqueue(() =>
+                view.AnimateDealFrom(spawnPosition, targetPosition, targetRotation, dealDuration, dealEase,
+                    () => view.SetCard(card, faceUp)));
         }
 
         private void OnDealerHoleCardRevealed(Card card)
         {
             if (dealerCards.Count > 1)
             {
-                dealerCards[1].SetCard(card, true);
+                CardVisual holeCard = dealerCards[1];
+                animQueue.Enqueue(() => holeCard.FlipTo(true, flipDuration, flipEase));
             }
         }
 
-        private CardVisual CreateCardView(Card card, int index, bool isDealer)
+        private CardVisual CreateCardView(Card card, bool isDealer, Vector3 spawnPosition, Quaternion spawnRotation)
         {
             Transform parent = cardRoot != null ? cardRoot : transform;
-            Transform anchor = isDealer ? dealerCardAnchor : playerCardAnchor;
             GameObject prefab = cardPrefabCatalog.GetPrefab(card);
 
             if (prefab == null)
@@ -170,17 +215,13 @@ namespace Game.Core
                 GameObject cardObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cardObject.transform.SetParent(parent, false);
                 cardObject.transform.localScale = new Vector3(1.2f, 0.08f, 1.8f);
-                cardObject.transform.SetPositionAndRotation(
-                    CardPlacement.GetPosition(anchor, index, cardSpacing),
-                    anchor.rotation);
+                cardObject.transform.SetPositionAndRotation(spawnPosition, spawnRotation);
                 return cardObject.AddComponent<CardVisual>();
             }
 
             var viewObject = new GameObject($"{(isDealer ? "Dealer" : "Player")}_{card}");
             viewObject.transform.SetParent(parent, false);
-            viewObject.transform.SetPositionAndRotation(
-                CardPlacement.GetPosition(anchor, index, cardSpacing),
-                anchor.rotation);
+            viewObject.transform.SetPositionAndRotation(spawnPosition, spawnRotation);
 
             GameObject model = Instantiate(prefab, viewObject.transform);
             model.transform.localPosition = Vector3.zero;
@@ -195,8 +236,25 @@ namespace Game.Core
         {
             yield return new WaitForSeconds(resultDisplaySeconds);
             isShowingHandResult = false;
-            ClearCards();
-            loop?.AdvanceToNextHand();
+
+            Vector3 deckTop = deckVisual != null ? deckVisual.RestTopSpawnPosition : transform.position;
+            EnqueueCollect(playerCards, deckTop);
+            EnqueueCollect(dealerCards, deckTop);
+
+            animQueue.WhenIdle(() =>
+            {
+                ClearCards();
+                loop?.AdvanceToNextHand();
+            });
+        }
+
+        private void EnqueueCollect(List<CardVisual> cards, Vector3 deckTop)
+        {
+            foreach (CardVisual card in cards)
+            {
+                CardVisual capturedCard = card;
+                animQueue.Enqueue(() => capturedCard.AnimateCollectTo(deckTop, collectDuration, collectEase));
+            }
         }
 
         private void OnGUI()
@@ -227,14 +285,22 @@ namespace Game.Core
 
         private void ClearCards()
         {
+            // Cards already swept into the deck by AnimateCollectTo self-destroy on arrival;
+            // the Unity "is this destroyed" equality check keeps this loop safe either way.
             foreach (CardVisual card in playerCards)
             {
-                Destroy(card.gameObject);
+                if (card != null)
+                {
+                    Destroy(card.gameObject);
+                }
             }
 
             foreach (CardVisual card in dealerCards)
             {
-                Destroy(card.gameObject);
+                if (card != null)
+                {
+                    Destroy(card.gameObject);
+                }
             }
 
             playerCards.Clear();
@@ -243,6 +309,8 @@ namespace Game.Core
 
         private void OnDestroy()
         {
+            animQueue.KillAll();
+
             if (loop == null)
             {
                 return;
