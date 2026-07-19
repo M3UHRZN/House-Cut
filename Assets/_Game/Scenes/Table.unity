@@ -49538,7 +49538,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: The Price Has Been Paid.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c17039b0171eaa647b0f0f5c459b2de7, type: 2}
   m_sharedMaterial: {fileID: -5993838926957030221, guid: c17039b0171eaa647b0f0f5c459b2de7, type: 2}
