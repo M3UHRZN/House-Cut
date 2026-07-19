@@ -117,6 +117,29 @@ namespace Game.Core
             return State == GameState.Resolve && Transition(GameState.NextHand) && Transition(GameState.BetCheck);
         }
 
+        /// <summary>
+        /// Called by the scene-side organ-extraction animation once the drop finishes.
+        /// Performs the advance that used to run synchronously in OnStateChanged(Extraction):
+        /// return to BetCheck, and deal immediately if the sale restored enough money.
+        /// Kept out of OnStateChanged so GameFlow can hold in Extraction while the
+        /// drop animation plays (GDD anti-softlock: no transition without a finished signal).
+        /// </summary>
+        public bool CompleteExtraction()
+        {
+            if (State != GameState.Extraction)
+            {
+                return false;
+            }
+
+            bool advanced = Transition(GameState.BetCheck);
+            if (advanced && economy.HasFundsForBaseBet)
+            {
+                Transition(GameState.Deal);
+            }
+
+            return advanced;
+        }
+
         private void OnStateChanged(GameState previous, GameState next)
         {
             switch (next)
@@ -141,12 +164,6 @@ namespace Game.Core
                     break;
                 case GameState.NextHand:
                     economy.AdvanceToNextHand();
-                    break;
-                case GameState.Extraction:
-                    if (Transition(GameState.BetCheck) && economy.HasFundsForBaseBet)
-                    {
-                        Transition(GameState.Deal);
-                    }
                     break;
             }
         }

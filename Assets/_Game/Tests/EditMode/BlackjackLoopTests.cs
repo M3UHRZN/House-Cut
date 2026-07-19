@@ -120,9 +120,36 @@ namespace Game.Tests.EditMode
             flow.SignalTransitionReady();
             Assert.IsTrue(flow.TryTransition(GameState.Extraction));
 
+            // Extraction now HOLDS for the drop animation instead of advancing synchronously.
+            Assert.AreEqual(GameState.Extraction, loop.State);
+
+            Assert.IsTrue(loop.CompleteExtraction());
+
             Assert.AreEqual(GameState.PlayerTurn, loop.State);
             Assert.AreEqual(2, loop.PlayerHand.Cards.Count);
             Assert.AreEqual(2, loop.DealerHand.Cards.Count);
+        }
+
+        [Test]
+        public void ExtractionCompleted_WithoutFunds_ReturnsToBetCheck()
+        {
+            config.startMoney = 100;
+            var flow = new GameFlow();
+            var economy = new EconomyController(config);
+            var loop = new BlackjackLoop(flow, economy, new Deck(seed: 42), config.decisionTime);
+
+            loop.Begin();
+            Assert.IsTrue(loop.ConfirmBet());
+            Assert.AreEqual(GameState.OrganSale, loop.State);
+
+            // No money added: the sale did not cover the required bet.
+            flow.SignalTransitionReady();
+            Assert.IsTrue(flow.TryTransition(GameState.Extraction));
+            Assert.AreEqual(GameState.Extraction, loop.State);
+
+            Assert.IsTrue(loop.CompleteExtraction());
+
+            Assert.AreEqual(GameState.BetCheck, loop.State);
         }
 
         [TestCase(700, "KAZANDIN  +$700")]

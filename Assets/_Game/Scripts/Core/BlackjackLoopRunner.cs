@@ -140,6 +140,9 @@ namespace Game.Core
         /// <summary>HUD için: akışın güncel durumu (bahis göstergesini bağlamak için).</summary>
         public GameState State => loop?.State ?? GameState.Intro;
 
+        /// <summary>Organ çıkarma animasyonunun akışı ilerletebilmesi için loop erişimi.</summary>
+        public BlackjackLoop Loop => loop;
+
         public void RaiseBet()
         {
             loop?.RaiseBet();
