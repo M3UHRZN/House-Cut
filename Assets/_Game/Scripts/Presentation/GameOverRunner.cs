@@ -18,6 +18,7 @@ namespace Game.Presentation
 
         [Header("Bağımlılıklar (opsiyonel — atanmazsa sahneden bulunur)")]
         [SerializeField] private GameFlowRunner flowRunner;
+        [SerializeField] private BlackjackLoopRunner loopRunner;
 
         [Header("Sahne Referansları (Hierarchy: GameOverCanvas altında)")]
         [SerializeField] private CanvasGroup canvasGroup;
@@ -28,9 +29,20 @@ namespace Game.Presentation
         [SerializeField, Min(0f)] private float fadeDuration = 1.5f;
         [SerializeField, Min(0f)] private float holdDuration = 2.5f;
 
+        [Header("Metinler — Kaybetme")]
+        [SerializeField] private string loseTitle = "OYUN BİTTİ";
+        [SerializeField] private string loseSubtitle = "Ev her zaman kazanır.";
+        [SerializeField] private Color loseSubtitleColor = new Color32(0xB3, 0x22, 0x1A, 0xFF);
+
+        [Header("Metinler — Kazanma (İngilizce)")]
+        [SerializeField] private string winTitle = "YOU WIN";
+        [SerializeField] private string winSubtitle = "You will pay a price.";
+        [SerializeField] private Color winSubtitleColor = new Color32(0x6B, 0x8E, 0x4E, 0xFF);
+
         private void Awake()
         {
             if (flowRunner == null) flowRunner = FindAnyObjectByType<GameFlowRunner>();
+            if (loopRunner == null) loopRunner = FindAnyObjectByType<BlackjackLoopRunner>();
             if (canvasGroup != null) canvasGroup.alpha = 0f;
         }
 
@@ -64,6 +76,9 @@ namespace Game.Presentation
 
         private void PlayEnding()
         {
+            bool won = loopRunner != null && loopRunner.Loop != null && loopRunner.Loop.Won;
+            ApplyEndingText(won);
+
             if (canvasGroup == null)
             {
                 SceneManager.LoadScene(mainMenuSceneName);
@@ -72,6 +87,20 @@ namespace Game.Presentation
 
             canvasGroup.blocksRaycasts = true;
             StartCoroutine(FadeThenReturnToMenu());
+        }
+
+        private void ApplyEndingText(bool won)
+        {
+            if (titleText != null)
+            {
+                titleText.text = won ? winTitle : loseTitle;
+            }
+
+            if (subtitleText != null)
+            {
+                subtitleText.text = won ? winSubtitle : loseSubtitle;
+                subtitleText.color = won ? winSubtitleColor : loseSubtitleColor;
+            }
         }
 
         private IEnumerator FadeThenReturnToMenu()

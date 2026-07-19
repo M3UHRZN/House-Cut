@@ -16,12 +16,19 @@ namespace Game.Core
         // so a sold Lung's timer debuff/buff (GDD §05) takes effect immediately.
         private readonly float decisionTime;
 
+        // Kazanma koşulu: GDD'de tanımlı değil, ek istek — oyuncu bu kadar eli
+        // ölmeden tamamlarsa masadan kazançla kalkar (GameOver'a "Won" bayrağıyla girilir).
+        private const int HandsToWin = 7;
+
         private PlayerTurnController playerTurn;
         private BetSelector activeSelector;
 
         public Hand PlayerHand { get; private set; }
         public Hand DealerHand { get; private set; }
         public GameState State => flow.CurrentState;
+
+        /// <summary>True if GameOver was reached by surviving HandsToWin hands rather than dying.</summary>
+        public bool Won { get; private set; }
 
         public event Action<Card, bool, bool> CardDealt;
         public event Action<Card> DealerHoleCardRevealed;
@@ -117,7 +124,18 @@ namespace Game.Core
 
         public bool AdvanceToNextHand()
         {
-            return State == GameState.Resolve && Transition(GameState.NextHand) && Transition(GameState.BetCheck);
+            if (State != GameState.Resolve || !Transition(GameState.NextHand))
+            {
+                return false;
+            }
+
+            if (!economy.OrganManager.IsGameOver && economy.HandNumber > HandsToWin)
+            {
+                Won = true;
+                return Transition(GameState.GameOver);
+            }
+
+            return Transition(GameState.BetCheck);
         }
 
         /// <summary>

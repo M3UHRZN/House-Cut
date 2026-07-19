@@ -15,7 +15,7 @@ namespace Game.Core
             { GameState.PlayerTurn, new[] { GameState.Deal, GameState.DealerTurn } },
             { GameState.DealerTurn, new[] { GameState.Resolve } },
             { GameState.Resolve, new[] { GameState.NextHand } },
-            { GameState.NextHand, new[] { GameState.BetCheck } },
+            { GameState.NextHand, new[] { GameState.BetCheck, GameState.GameOver } },
             { GameState.GameOver, new[] { GameState.Intro } },
         };
 
