@@ -45,9 +45,11 @@ namespace Game.Organs
         [SerializeField] private TMP_Text tooltipValueText;
         [SerializeField] private TMP_Text tooltipDebuffText;
         [SerializeField] private TMP_Text tooltipBuffText;
+        [SerializeField] private TMP_Text satButtonLabel;
 
         private readonly List<OrganTileView> tiles = new();
         private Bank bank;
+        private OrganData focusedOrgan;
 
         public OrganManager OrganManager { get; private set; }
         public OrganSaleController Controller { get; private set; }
@@ -138,6 +140,8 @@ namespace Game.Organs
         public void ToggleOrgan(OrganData organ)
         {
             Controller.ToggleSelection(organ);
+            focusedOrgan = organ;
+            ShowTooltip(organ);
             RefreshAll();
         }
 
@@ -160,17 +164,17 @@ namespace Game.Organs
 
             if (tooltipValueText != null)
             {
-                tooltipValueText.text = "$" + OrganManager.GetSaleValue(organ);
+                tooltipValueText.gameObject.SetActive(false);
             }
 
             if (tooltipDebuffText != null)
             {
-                tooltipDebuffText.text = organ.debuffDescription;
+                tooltipDebuffText.text = BuildDescription(organ);
             }
 
             if (tooltipBuffText != null)
             {
-                tooltipBuffText.text = string.IsNullOrEmpty(organ.buffDescription) ? "Yok" : organ.buffDescription;
+                tooltipBuffText.gameObject.SetActive(false);
             }
         }
 
@@ -185,6 +189,20 @@ namespace Game.Organs
             {
                 tooltipFilledState.SetActive(false);
             }
+        }
+
+        private static string BuildDescription(OrganData organ)
+        {
+            string debuff = string.IsNullOrWhiteSpace(organ.debuffDescription)
+                ? "Bu organın belirgin bir bedeli yok."
+                : organ.debuffDescription;
+
+            if (string.IsNullOrWhiteSpace(organ.buffDescription))
+            {
+                return debuff;
+            }
+
+            return $"{debuff}\n\nKARŞILIK: {organ.buffDescription}";
         }
 
         private void BuildTiles()
@@ -238,6 +256,12 @@ namespace Game.Organs
             if (satButton != null)
             {
                 satButton.interactable = Controller.CanConfirm(RequiredBet);
+            }
+
+            if (satButtonLabel != null)
+            {
+                int selectedTotal = Controller.SelectedTotal;
+                satButtonLabel.text = selectedTotal > 0 ? $"SAT  ·  ${selectedTotal}" : "SAT";
             }
         }
 

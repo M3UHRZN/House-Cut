@@ -9,12 +9,12 @@ namespace Game.Organs
 {
     /// <summary>
     /// Single organ tile on the beden defteri grid: click toggles selection,
-    /// hover pushes this organ's $/debuff/buff into the runner's tooltip
-    /// panel. Border color lerps between idle/selected/sold per the "Kasap
+    /// click pushes this organ's details into the runner's panel. Border color
+    /// lerps between idle/selected/sold per the "Kasap
     /// Defteri" palette (OrganSaleRunner.*Color) — no DOTween in the project,
     /// so a plain Coroutine drives the tween.
     /// </summary>
-    public class OrganTileView : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+    public class OrganTileView : MonoBehaviour, IPointerClickHandler
     {
         private const float ColorLerpDuration = 0.12f;
 
@@ -22,6 +22,9 @@ namespace Game.Organs
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text valueText;
         [SerializeField] private GameObject soldMark;
+        [Tooltip("Satılmış organın soluk görünmesini sağlayan CanvasGroup. Bu referansı organ görsel objesine Inspector'dan ata.")]
+        [SerializeField] private CanvasGroup soldVisualGroup;
+        [SerializeField, Range(0f, 1f)] private float soldOpacity = 0.28f;
 
         private OrganSaleRunner runner;
         private Coroutine colorRoutine;
@@ -59,6 +62,13 @@ namespace Game.Organs
                 soldMark.SetActive(sold);
             }
 
+            if (soldVisualGroup != null)
+            {
+                soldVisualGroup.alpha = sold ? soldOpacity : 1f;
+                soldVisualGroup.interactable = !sold;
+                soldVisualGroup.blocksRaycasts = !sold;
+            }
+
             Color target = sold
                 ? OrganSaleRunner.SoldColor
                 : selected
@@ -75,22 +85,6 @@ namespace Game.Organs
             }
 
             runner.ToggleOrgan(Organ);
-        }
-
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            if (runner != null && Organ != null)
-            {
-                runner.ShowTooltip(Organ);
-            }
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            if (runner != null)
-            {
-                runner.HideTooltip();
-            }
         }
 
         private void SetBorderColor(Color target)
