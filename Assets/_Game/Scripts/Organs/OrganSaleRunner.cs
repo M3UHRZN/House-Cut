@@ -147,16 +147,6 @@ namespace Game.Organs
 
         public void ShowTooltip(OrganData organ)
         {
-            if (tooltipEmptyState != null)
-            {
-                tooltipEmptyState.SetActive(false);
-            }
-
-            if (tooltipFilledState != null)
-            {
-                tooltipFilledState.SetActive(true);
-            }
-
             if (tooltipNameText != null)
             {
                 tooltipNameText.text = organ.displayName;
@@ -180,14 +170,16 @@ namespace Game.Organs
 
         public void HideTooltip()
         {
-            if (tooltipEmptyState != null)
+            // The selection panel stays visible at all times so the player
+            // understands where the clicked organ's details will appear.
+            if (tooltipNameText != null)
             {
-                tooltipEmptyState.SetActive(true);
+                tooltipNameText.text = "BİR ORGAN SEÇ";
             }
 
-            if (tooltipFilledState != null)
+            if (tooltipDebuffText != null)
             {
-                tooltipFilledState.SetActive(false);
+                tooltipDebuffText.text = "Bir organ seç. Bedeli burada görünecek; satış fiyatı SAT butonunda yazacak.";
             }
         }
 
