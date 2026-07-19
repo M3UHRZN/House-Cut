@@ -51,6 +51,9 @@ namespace Game.Core
         /// <summary>Ses için: oyuncu batınca tetiklenir (loop.PlayerBusted'ın re-broadcast'i).</summary>
         public event System.Action PlayerBusted;
 
+        /// <summary>Ses için: bahis ok tuşlarıyla değiştirildiğinde tetiklenir (clamp'e takılsa da).</summary>
+        public event System.Action BetChanged;
+
         private void Awake()
         {
             if (configProvider == null || configProvider.Config == null || flowRunner == null || economyRunner == null ||
@@ -159,6 +162,7 @@ namespace Game.Core
             if (loop != null)
             {
                 Debug.Log($"Bahis: ${loop.CurrentBet}");
+                BetChanged?.Invoke();
             }
         }
 
@@ -168,6 +172,7 @@ namespace Game.Core
             if (loop != null)
             {
                 Debug.Log($"Bahis: ${loop.CurrentBet}");
+                BetChanged?.Invoke();
             }
         }
 

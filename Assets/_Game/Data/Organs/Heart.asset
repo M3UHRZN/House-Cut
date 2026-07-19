@@ -24,8 +24,7 @@ MonoBehaviour:
     son sat\u0131\u015F ve oyun sonu."
   buffDescription: "Yok \u2014 kalp yaln\u0131zca oyun sonu \xF6demesidir; verildi\u011Fi
     an ko\u015Fu biter."
-  mesh: {fileID: 0}
   icon: {fileID: 0}
-  extractionSfx: {fileID: 8300000, guid: 69c42c55c2275a141bcd9ee7288e6c95, type: 3}
+  extractionSfx: {fileID: 8300000, guid: 1b0e3f97471788e4cbaced00230cba75, type: 3}
   postProcessProfile: {fileID: 0}
   extractionPrefab: {fileID: 3300437194123433339, guid: 94e8374ea7a24434ca35b40f9eb23715, type: 3}

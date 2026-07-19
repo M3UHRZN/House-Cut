@@ -24,8 +24,7 @@ MonoBehaviour:
     s\xFCresi 15 sn'den 10 sn'ye iner."
   buffDescription: "Derin nefes: her 3 elde bir, sonraki karar\u0131nda s\xFCre +5
     sn uzar."
-  mesh: {fileID: 0}
   icon: {fileID: 0}
-  extractionSfx: {fileID: 8300000, guid: 69c42c55c2275a141bcd9ee7288e6c95, type: 3}
+  extractionSfx: {fileID: 8300000, guid: 1b0e3f97471788e4cbaced00230cba75, type: 3}
   postProcessProfile: {fileID: 0}
   extractionPrefab: {fileID: 6296787664606342306, guid: fc2e06acb58d5ac48a8a70cd9375bee7, type: 3}

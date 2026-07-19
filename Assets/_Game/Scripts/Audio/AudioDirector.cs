@@ -28,6 +28,7 @@ namespace Game.Audio
         [SerializeField] private AudioCue lose;
         [SerializeField] private AudioCue bust;
         [SerializeField] private AudioCue gameOver;
+        [SerializeField] private AudioCue betChange;
 
         [Header("Cues — Ortam")]
         [SerializeField] private AudioCue ambientLoop;
@@ -74,6 +75,7 @@ namespace Game.Audio
                 loopRunner.HoleCardFlipped += OnHoleCardFlipped;
                 loopRunner.HandSettled += OnHandSettled;
                 loopRunner.PlayerBusted += OnPlayerBusted;
+                loopRunner.BetChanged += OnBetChanged;
             }
             else
             {
@@ -99,6 +101,8 @@ namespace Game.Audio
 
         private void OnPlayerBusted() => bust?.PlayOneShot(sfxSource);
 
+        private void OnBetChanged() => betChange?.PlayOneShot(sfxSource);
+
         private void OnHandSettled(int delta)
         {
             // GDD §03.6: berabere yok — HandResolver her zaman kazan/kaybet döndürür (delta asla 0 değil).
@@ -122,6 +126,7 @@ namespace Game.Audio
                 loopRunner.HoleCardFlipped -= OnHoleCardFlipped;
                 loopRunner.HandSettled -= OnHandSettled;
                 loopRunner.PlayerBusted -= OnPlayerBusted;
+                loopRunner.BetChanged -= OnBetChanged;
             }
 
             if (flowRunner != null && flowRunner.Flow != null)

@@ -24,8 +24,7 @@ MonoBehaviour:
     kartlar 0,6 sn e\u011Filip toparlan\u0131r."
   buffDescription: "Kart \xC7ekti\u011Finde, yeni toplam\u0131n 21'e ka\xE7 kald\u0131\u011F\u0131
     bir an vurgulan\u0131r (hesap kolayl\u0131\u011F\u0131)."
-  mesh: {fileID: 0}
   icon: {fileID: 0}
-  extractionSfx: {fileID: 8300000, guid: 69c42c55c2275a141bcd9ee7288e6c95, type: 3}
+  extractionSfx: {fileID: 8300000, guid: 1b0e3f97471788e4cbaced00230cba75, type: 3}
   postProcessProfile: {fileID: 0}
   extractionPrefab: {fileID: 3067887044819563645, guid: 0b58393c5a99c9c4f95fcacc7d423423, type: 3}

@@ -49614,6 +49614,7 @@ MonoBehaviour:
   lose: {fileID: 11400000, guid: 5ee0657bae470a546ad4f6f0d7e5d902, type: 2}
   bust: {fileID: 11400000, guid: d9d55d5b1fbbaf840a078585ead6b2fc, type: 2}
   gameOver: {fileID: 11400000, guid: 1ca4ccac743d70049836c1b418aa0374, type: 2}
+  betChange: {fileID: 11400000, guid: a3704e94d866328488aabfa1952232db, type: 2}
   ambientLoop: {fileID: 11400000, guid: f3b6edf5fd9d0aa4d966cd7006f59cc1, type: 2}
   music: {fileID: 0}
 --- !u!4 &1925923496
