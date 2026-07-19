@@ -229,9 +229,7 @@ namespace Game.Core
                 GameObject cardObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cardObject.transform.SetParent(parent, false);
                 cardObject.transform.localScale = new Vector3(1.2f, 0.08f, 1.8f);
-                cardObject.transform.SetPositionAndRotation(
-                    CardPlacement.GetPosition(anchor, index, cardSpacing),
-                    anchor.rotation);
+                cardObject.transform.SetPositionAndRotation(spawnPosition, spawnRotation);
                 return cardObject.AddComponent<CardVisual>();
             }
 

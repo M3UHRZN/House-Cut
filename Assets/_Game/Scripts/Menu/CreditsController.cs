@@ -118,7 +118,7 @@ namespace Game.Menu
             text.fontSize = nameFontSize;
             text.color = color;
             text.raycastTarget = false;
-            text.enableWordWrapping = false;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
             text.overflowMode = TextOverflowModes.Overflow;
             if (nameFont != null)
             {

@@ -26,7 +26,7 @@ namespace Game.Menu
             // CreditsController gibi bazı butonlar (isim satırlarındaki link butonları)
             // kendi Awake'inde çalışma zamanında oluşturuluyor — bu yüzden Start'ta tarıyoruz,
             // tüm Awake'ler bittikten sonra çalışır.
-            var buttons = FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var buttons = FindObjectsByType<Button>(FindObjectsInactive.Include);
             foreach (var button in buttons)
             {
                 AttachHoverEvents(button.gameObject);
