@@ -24,7 +24,7 @@ namespace Game.Tests.EditMode
             {
                 "id", "displayName", "dollarValue", "quantity",
                 "debuffType", "debuffStrength", "buffType", "buffStrength",
-                "mesh", "icon", "extractionSfx", "postProcessProfile"
+                "icon", "extractionSfx", "postProcessProfile", "extractionPrefab"
             };
 
             CollectionAssert.IsSubsetOf(

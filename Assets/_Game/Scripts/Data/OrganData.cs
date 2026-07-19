@@ -47,7 +47,6 @@ namespace Game.Data
         [TextArea] public string buffDescription;
 
         [Header("Presentation")]
-        public Mesh mesh;
         public Sprite icon;
         public AudioClip extractionSfx;
         public ScriptableObject postProcessProfile;
