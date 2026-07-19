@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7aad306bfeaaeb541a470d264cd0a72e, type: 3}
   m_Name: Cue_GameOver
   m_EditorClassIdentifier: Game::Game.Audio.AudioCue
-  clips: []
+  clips:
+  - {fileID: 8300000, guid: 078239b7fffa18d4f926a113b3767174, type: 3}
   volume: 1
   pitchRange: {x: 0.95, y: 1.05}
