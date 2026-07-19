@@ -52406,7 +52406,7 @@ MonoBehaviour:
   dropAnchor: {fileID: 1618261419}
   travelDuration: 1
   travelEase: 1
-  arcHeight: 0.8
+  arcHeight: 0.35
   minTumbleDegrees: 60
   maxTumbleDegrees: 60
   settleDelay: 0.5

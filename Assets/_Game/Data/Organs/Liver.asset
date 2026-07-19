@@ -26,5 +26,6 @@ MonoBehaviour:
     \xE7eviren tek buff."
   mesh: {fileID: 0}
   icon: {fileID: 0}
-  extractionSfx: {fileID: 0}
+  extractionSfx: {fileID: 8300000, guid: 69c42c55c2275a141bcd9ee7288e6c95, type: 3}
   postProcessProfile: {fileID: 0}
+  extractionPrefab: {fileID: 8111085336182128339, guid: 59ca4bfebf37d0d42b3fcee0785df009, type: 3}

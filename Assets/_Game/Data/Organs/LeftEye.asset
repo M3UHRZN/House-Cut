@@ -26,5 +26,6 @@ MonoBehaviour:
     bir an a\xE7\u0131k g\xF6sterilir."
   mesh: {fileID: 0}
   icon: {fileID: 0}
-  extractionSfx: {fileID: 0}
+  extractionSfx: {fileID: 8300000, guid: 69c42c55c2275a141bcd9ee7288e6c95, type: 3}
   postProcessProfile: {fileID: 0}
+  extractionPrefab: {fileID: 7692833595247115548, guid: b15cbe9f0c0f88f4194236425da8d8ce, type: 3}

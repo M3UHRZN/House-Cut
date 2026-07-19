@@ -26,5 +26,6 @@ MonoBehaviour:
     parada tetiklenir); iflasa daha dayan\u0131kl\u0131s\u0131n."
   mesh: {fileID: 0}
   icon: {fileID: 0}
-  extractionSfx: {fileID: 0}
+  extractionSfx: {fileID: 8300000, guid: 69c42c55c2275a141bcd9ee7288e6c95, type: 3}
   postProcessProfile: {fileID: 0}
+  extractionPrefab: {fileID: 2259277124033848060, guid: 50aa47def36862b48b5279b600f41362, type: 3}

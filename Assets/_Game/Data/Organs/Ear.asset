@@ -26,5 +26,6 @@ MonoBehaviour:
     mi (7+) d\xFC\u015F\xFCk m\xFC oldu\u011Funa dair belirsiz bir ses ipucu duyars\u0131n."
   mesh: {fileID: 0}
   icon: {fileID: 0}
-  extractionSfx: {fileID: 0}
+  extractionSfx: {fileID: 8300000, guid: 69c42c55c2275a141bcd9ee7288e6c95, type: 3}
   postProcessProfile: {fileID: 0}
+  extractionPrefab: {fileID: 5662188659230051858, guid: 7c8a36fcc9280fb40ba413a6b9c7d52c, type: 3}

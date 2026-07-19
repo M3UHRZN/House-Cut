@@ -26,5 +26,6 @@ MonoBehaviour:
     nakit al\u0131rs\u0131n."
   mesh: {fileID: 0}
   icon: {fileID: 0}
-  extractionSfx: {fileID: 0}
+  extractionSfx: {fileID: 8300000, guid: 69c42c55c2275a141bcd9ee7288e6c95, type: 3}
   postProcessProfile: {fileID: 0}
+  extractionPrefab: {fileID: 2013400999618856808, guid: 8c47eb2b3bf804947998591912a11819, type: 3}
