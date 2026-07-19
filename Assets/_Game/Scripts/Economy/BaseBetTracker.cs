@@ -22,6 +22,13 @@ namespace Game.Economy
 
         public int Current { get; private set; }
 
+        /// <summary>
+        /// Kaçıncı el oynanıyor (ilk el = 1) — GDD §06 "El sayacı" ve kademe (I–V)
+        /// göstergesi bundan türetilir. Bahis rampasından bağımsızdır: erteleme ya da
+        /// Böbrek II'nin yavaş rampası bahsi yükseltmese bile el sayısı yine ilerler.
+        /// </summary>
+        public int HandNumber { get; private set; } = 1;
+
         public BaseBetTracker(GameConfig config, bool slowerRamp = false)
         {
             minBet = config.minBet;
@@ -49,6 +56,10 @@ namespace Game.Economy
         /// <summary>Advances to the next hand, raising the base bet per the ramp rules.</summary>
         public void AdvanceHand()
         {
+            // El sayısı her çağrıda ilerler — aşağıdaki erken return'ler yalnızca
+            // bahsin yükselip yükselmeyeceğini belirler, elin oynanmış olmasını değil.
+            HandNumber++;
+
             if (deferNextRamp)
             {
                 deferNextRamp = false;

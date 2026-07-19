@@ -49,6 +49,9 @@ namespace Game.Economy
         public int LockedBet => lockedBet;
         public bool HasDeferment => deferment.Has;
 
+        /// <summary>Kaçıncı el oynanıyor (ilk el = 1) — HUD'daki el sayacı (GDD §06).</summary>
+        public int HandNumber => baseBet.HandNumber;
+
         /// <summary>Effective decision time for the current hand, after Lung's sold debuff/buff (GDD §05).</summary>
         public float CurrentDecisionTime => lungTimer.GetDecisionTime(config.decisionTime);
 
