@@ -18,7 +18,7 @@ namespace Game.Core
 
         // Kazanma koşulu: GDD'de tanımlı değil, ek istek — oyuncu bu kadar eli
         // ölmeden tamamlarsa masadan kazançla kalkar (GameOver'a "Won" bayrağıyla girilir).
-        private const int HandsToWin = 7;
+        private const int HandsToWin = 11;
 
         private PlayerTurnController playerTurn;
         private BetSelector activeSelector;

@@ -29,12 +29,21 @@ namespace Game.Presentation
     /// sebep olurdu. Bunun yerine NarrowedFovDelta'yı ve IsCritical'ı
     /// açığa çıkarır; tek yazıcı olan CameraLookRunner bunu kendi zoom
     /// hedefinden düşerek uygular.
+    ///
+    /// GameFlow farkındalığı: Kritik Hâl sunumu yalnızca gerçek masa oyunu
+    /// durumlarında (BetCheck..NextHand) değerlendirilir — OrganSale/Extraction
+    /// ekranlarında (oyuncu zaten 2D market UI'ına bakıyor) ve GameOver'da
+    /// (kapanış ekranı) devreye girmez. Duraklatma menüsü açıkken
+    /// (Time.timeScale == 0, PauseController) de donuk kalır. GameOver'a
+    /// girildiğinde nabız sesi/vignette/titreme anında (blend'siz) sıfırlanır,
+    /// yoksa GameOverRunner'ın siyah ekranı arkasında nabız sesi çalmaya devam eder.
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
     public class CriticalStateRunner : MonoBehaviour
     {
         [SerializeField] private GameConfigProvider configProvider;
         [SerializeField] private EconomyRunner economyRunner;
+        [SerializeField] private GameFlowRunner flowRunner;
         [SerializeField] private Volume globalVolume;
         [SerializeField] private CinemachineCamera cinemachineCamera;
         [SerializeField] private AudioClip heartbeatClip;
@@ -146,6 +155,58 @@ namespace Game.Presentation
 
             bank = economyRunner.Economy.MoneyBank;
             organManager = economyRunner.Economy.OrganManager;
+
+            if (flowRunner == null)
+            {
+                flowRunner = FindAnyObjectByType<GameFlowRunner>();
+            }
+
+            if (flowRunner != null && flowRunner.Flow != null)
+            {
+                flowRunner.Flow.StateChanged += OnFlowStateChanged;
+            }
+        }
+
+        /// <summary>Kritik Hâl sunumunun aktif olabileceği tek durumlar — gerçek masa oyunu (GDD §08).</summary>
+        private static bool IsTablePlayState(GameState state)
+        {
+            return state == GameState.BetCheck || state == GameState.Deal || state == GameState.PlayerTurn ||
+                state == GameState.DealerTurn || state == GameState.Resolve || state == GameState.NextHand;
+        }
+
+        private void OnFlowStateChanged(GameState previous, GameState next)
+        {
+            if (next == GameState.GameOver)
+            {
+                HardReset();
+            }
+        }
+
+        /// <summary>Blend'siz anlık sıfırlama — GameOver'a girildiğinde kapanış ekranının arkasında
+        /// nabız sesi/titreme/vignette kalmasın diye ApplyPresentation'ın yumuşak geçişini beklemeden uygulanır.</summary>
+        private void HardReset()
+        {
+            IsCritical = false;
+            forceCritical = false;
+            periodicShakeTimer = 0f;
+            ToggleHeartbeat();
+
+            if (cinemachineCamera != null)
+            {
+                smoothedJitterBase = cinemachineRestPosition;
+                cinemachineCamera.transform.localPosition = cinemachineRestPosition;
+            }
+
+            if (vignette != null)
+            {
+                vignette.color.value = baseVignetteColor;
+                vignette.intensity.value = baseVignetteIntensity;
+            }
+
+            if (chromaticAberration != null)
+            {
+                chromaticAberration.intensity.value = baseChromaticAberrationIntensity;
+            }
         }
 
         private bool forceCritical;
@@ -158,11 +219,23 @@ namespace Game.Presentation
 
         private void Update()
         {
+            // Duraklatma menüsü açıkken (PauseController Time.timeScale=0 yapar) donuk
+            // kal — BlackjackLoopRunner/PlayerTurnController'la aynı kural.
+            if (Time.timeScale == 0f)
+            {
+                return;
+            }
+
+            // OrganSale/Extraction/GameOver/Intro'da Kritik Hâl sunumu devreye girmez
+            // (oyuncu 2D market UI'ına ya da kapanış ekranına bakıyor) — bu durumlarda
+            // düzeltmek için ApplyPresentation'ın yumuşak blend'ini bekletmeden false'a çekilir.
+            bool inTablePlay = flowRunner == null || flowRunner.Flow == null || IsTablePlayState(flowRunner.Flow.CurrentState);
+
             int minBet = configProvider != null && configProvider.Config != null
                 ? configProvider.Config.minBet
                 : runtimeConfig.minBet;
 
-            bool critical = forceCritical || organManager.IsCriticalState(minBet);
+            bool critical = inTablePlay && (forceCritical || organManager.IsCriticalState(minBet));
             if (critical != IsCritical)
             {
                 IsCritical = critical;
@@ -271,6 +344,11 @@ namespace Game.Presentation
 
         private void OnDestroy()
         {
+            if (flowRunner != null && flowRunner.Flow != null)
+            {
+                flowRunner.Flow.StateChanged -= OnFlowStateChanged;
+            }
+
             if (runtimeConfig != null)
             {
                 Destroy(runtimeConfig);

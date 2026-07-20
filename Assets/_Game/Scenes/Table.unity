@@ -3679,15 +3679,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game::Game.Presentation.GameOverRunner
   mainMenuSceneName: MainMenu
-  flowRunner: {fileID: 0}
+  flowRunner: {fileID: 620165279}
   loopRunner: {fileID: 1294278533}
   canvasGroup: {fileID: 381944209}
   titleText: {fileID: 1783709406}
   subtitleText: {fileID: 1879697576}
   fadeDuration: 1.5
   holdDuration: 2.5
-  loseTitle: "OYUN B\u0130TT\u0130"
-  loseSubtitle: "Ev her zaman kazan\u0131r."
+  loseTitle: GAME OVER
+  loseSubtitle: The Price Has Been Paid.
   loseSubtitleColor: {r: 0.7019608, g: 0.13333334, b: 0.101960786, a: 1}
   winTitle: YOU WIN
   winSubtitle: You will pay a price.
@@ -51619,6 +51619,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game::Game.Presentation.CriticalStateRunner
   configProvider: {fileID: 1828241800}
   economyRunner: {fileID: 1294278534}
+  flowRunner: {fileID: 620165279}
   globalVolume: {fileID: 2031640785}
   cinemachineCamera: {fileID: 1690157538}
   heartbeatClip: {fileID: 8300000, guid: e0626ba865f8e84479299b6c73bb347a, type: 3}
